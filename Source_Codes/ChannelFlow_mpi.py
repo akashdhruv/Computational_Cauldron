@@ -48,7 +48,8 @@ w=1. # Relaxation factor
 
 x=np.linspace(0.,Lx,Nxb+1)
 
-y=((Nyb)*rank)*dy+np.linspace(0,Nyb*dy,Nyb+1)
+#y=((Nyb)*rank)*dy+np.linspace(0,Nyb*dy,Nyb+1)
+y= np.linspace(0.,1.,Nx)[(Nyb*rank):(Nyb*rank)+Nyb]
 
 p=np.zeros((Nxb+2,Nyb+2),dtype=float)
 p_old=np.empty_like(p)
@@ -78,7 +79,7 @@ def F2C(vn,vs,ve,vw,ue,uw,dx,dy):
 # Simulation Parameters   
 
 t=0
-tmax=1.
+tmax=25.
 
 dt=0.5*(dx**2)*(dy**2)/(inRe*(dx**2+dy**2))
 #dt=0.5*(min(dx,dy))**2/inRe
@@ -339,8 +340,8 @@ for tstep in range(nt):
 		
 #		ind=ind+1
 
-uu=(u[:,:-1]+u[:,1:])*0.5
-vv=(v[1:,1:]+v[:-1,1:])*0.5
+uu=(u[:,:-2]+u[:,1:-1])*0.5
+vv=(v[1:,1:-1]+v[:-1,1:-1])*0.5
 
 uu=uu.T
 vv=vv.T

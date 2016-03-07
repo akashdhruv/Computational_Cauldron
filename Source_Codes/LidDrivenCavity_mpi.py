@@ -21,8 +21,8 @@ comm.Barrier()
 Lx=1.
 Ly=1.  
 
-Nxb=128
-Nyb=16
+Nxb=32
+Nyb=4
 
 iProcs=1
 jProcs=8
@@ -48,7 +48,8 @@ w=1. # Relaxation factor
 
 x=np.linspace(0.,Lx,Nxb+1)
 
-y=((Nyb)*rank)*dy+np.linspace(0,Nyb*dy,Nyb+1)
+#y=((Nyb)*rank)*dy+np.linspace(0,Nyb*dy,Nyb+1)
+y= np.linspace(0.,1.,Nx)[(Nyb*rank):(Nyb*rank)+Nyb]
 
 p=np.zeros((Nxb+2,Nyb+2),dtype=float)
 p_old=np.empty_like(p)
@@ -335,8 +336,8 @@ for tstep in range(nt):
 		
 #		ind=ind+1
 
-uu=(u[:,:-1]+u[:,1:])*0.5
-vv=(v[1:,1:]+v[:-1,1:])*0.5
+uu=(u[:,:-2]+u[:,1:-1])*0.5
+vv=(v[1:,1:-1]+v[:-1,1:-1])*0.5
 
 uu=uu.T
 vv=vv.T
