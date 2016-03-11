@@ -21,8 +21,8 @@ comm.Barrier()
 Lx=1.
 Ly=1.  
 
-Nxb=128
-Nyb=32
+Nxb=48
+Nyb=12
 
 iProcs=1
 jProcs=4
@@ -41,7 +41,7 @@ norm_v=0.
 
 # Global Constants
 
-inRe=0.01
+inRe=0.001
 U=1.0
 
 w=1. # Relaxation factor
@@ -84,11 +84,11 @@ def F2C(vn,vs,ve,vw,ue,uw,dx,dy):
 # Simulation Parameters   
 
 t=0
-tmax=300.
+tmax=5.
 
-dt=0.5*(dx**2)*(dy**2)/(inRe*(dx**2+dy**2))
+#dt=0.5*(dx**2)*(dy**2)/(inRe*(dx**2+dy**2))
 #dt=0.5*(min(dx,dy))**2/inRe
-#dt=0.5*min(dx,dy)/U
+dt=0.5*min(dx,dy)/U
 
 nt=int((tmax-t)/dt)
 
@@ -112,7 +112,7 @@ while(tstep<nt):
         vs1=(v[1:-2,:-2]+v[2:-1,:-2])/2
         vn1=(v[1:-2,1:-1]+v[2:-1,1:-1])/2
         
-	if tstep==0 or tstep:
+	if tstep==0:
         	G1=(F1C(ue1,uw1,us1,un1,vs1,vn1,dx,dy)+FV(u[1:-1,1:-1],u[2:,1:-1],u[:-2,1:-1],u[1:-1,2:],u[1:-1,:-2],dx,dy,inRe))
         	ut[1:-1,1:-1]=u[1:-1,1:-1]+(dt/1)*G1
         	G1_old=G1.copy()
@@ -125,15 +125,15 @@ while(tstep<nt):
         vw12=(v[1:-1,1:-1]+v[:-2,1:-1])/2
         vs12=(v[1:-1,1:-1]+v[1:-1,:-2])/2
         vn12=(v[1:-1,1:-1]+v[1:-1,2:])/2
-        us12=(u[:-1,1:-1]+u[:-1,2:])/2
-        un12=(u[1:,1:-1]+u[1:,2:])/2
+        un12=(u[:-1,1:-1]+u[:-1,2:])/2
+        us12=(u[1:,1:-1]+u[1:,2:])/2
         
 	if tstep==0 or tstep:
-        	G2=(F2C(ve12,vw12,vs12,vn12,us12,un12,dx,dy)+FV(v[1:-1,1:-1],v[2:,1:-1],v[:-2,1:-1],v[1:-1,2:],v[1:-1,:-2],dx,dy,inRe))
+        	G2=(F2C(vn12,vs12,ve12,vw12,us12,un12,dx,dy)+FV(v[1:-1,1:-1],v[2:,1:-1],v[:-2,1:-1],v[1:-1,2:],v[1:-1,:-2],dx,dy,inRe))
         	vt[1:-1,1:-1]=v[1:-1,1:-1]+(dt/1)*G2
 		G2_old=G2.copy()
 	else:
-		G2=(F2C(ve12,vw12,vs12,vn12,us12,un12,dx,dy)+FV(v[1:-1,1:-1],v[2:,1:-1],v[:-2,1:-1],v[1:-1,2:],v[1:-1,:-2],dx,dy,inRe))
+		G2=(F2C(vn12,vs12,ve12,vw12,us12,un12,dx,dy)+FV(v[1:-1,1:-1],v[2:,1:-1],v[:-2,1:-1],v[1:-1,2:],v[1:-1,:-2],dx,dy,inRe))
                 vt[1:-1,1:-1]=v[1:-1,1:-1]+(dt/2)*(3*G2-G2_old)
                 G2_old=G2.copy()
 	
