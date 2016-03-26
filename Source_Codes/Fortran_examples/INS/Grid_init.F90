@@ -29,25 +29,19 @@ subroutine Grid_init()
 #endif
 
 #ifdef SOLVER_GRID_NON_UG
-
-             Lx=2.0
-
+             omega = 0
 #endif
 
 #ifdef POISSON_SOLVER_JACOBI
-             
-             Ly=2.0
-
+             omega = 0
 #endif
 
 #ifdef POISSON_SOLVER_GS
-             Ly=3.0
-
 #endif
 
 #ifdef POISSON_SOLVER_GSOR
 
-             Ly=4.0
+           omega = 1.1
 #endif
 
 end subroutine Grid_init
