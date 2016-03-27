@@ -18,7 +18,6 @@ module Grid_data
        real, save :: dy
 
        real, save :: inRe
-       real, save :: omega
 
        real, save, dimension(Nxb+1,Nyb+1) :: x
        real, save, dimension(Nxb+1,Nyb+1) :: y

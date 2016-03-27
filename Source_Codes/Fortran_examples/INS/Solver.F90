@@ -8,7 +8,6 @@ use IncompNS_interface, ONLY: IncompNS_init
 
     call Grid_init()
     call IncompNS_init()
-    call IO_display()
 
 end program Solver
 

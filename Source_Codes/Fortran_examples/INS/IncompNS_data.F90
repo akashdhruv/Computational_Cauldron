@@ -7,7 +7,7 @@ module IncompNS_data
      
         implicit none
 
-        real, save, dimension(Nyb+2,Nyb+2) :: p 
+        real, save, dimension(Nxb+2,Nyb+2) :: p 
 
         real, save, dimension(Nxb+1,Nyb+2) :: u
 

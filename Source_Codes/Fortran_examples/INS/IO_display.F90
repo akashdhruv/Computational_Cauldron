@@ -1,15 +1,16 @@
-subroutine IO_display()
-
-         use Grid_data
-         use IncompNS_data
+subroutine IO_display(u_res,v_res,p_res,p_counter)
 
 #include "Solver.h"
 
          implicit none
 
-         print *,"Size of Domain ",Lx," X ",Ly
-         print *,"Relaxation Factor ",omega
-         print *,"Time Steps ",nt
-         print *,"Poisson Iterations ",MaxIt
+         real, intent(in) :: u_res,v_res,p_res
+         integer, intent(in) :: p_counter
+
+         print *,"*****************PARAMETER DISPLAY**********************"
+         print *,"U Velocity Residual: ",u_res
+         print *,"V Velocity Residual: ",v_res
+         print *,"Pressure Residual:   ",p_res
+         print *,"Poisson Counter:     ",p_counter
 
 end subroutine IO_display

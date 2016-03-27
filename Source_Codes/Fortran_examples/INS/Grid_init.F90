@@ -32,7 +32,7 @@ subroutine Grid_init()
                  y(i,:)=dy*(/(I,I=0,Nyb)/)
              enddo
 
-             t = 20.0
+             t = 300.0
 
              !dt = 0.5*min(dx,dy)
              dt = 0.5*(dx**2)*(dy**2)/(inRe*((dx**2)+(dy**2)))
@@ -45,16 +45,12 @@ subroutine Grid_init()
 #endif
 
 #ifdef POISSON_SOLVER_JACOBI
-             omega = 0
 #endif
 
 #ifdef POISSON_SOLVER_GS
-             omega = 0
 #endif
 
 #ifdef POISSON_SOLVER_GSOR
-
-            omega = 1.1
 #endif
 
 end subroutine Grid_init

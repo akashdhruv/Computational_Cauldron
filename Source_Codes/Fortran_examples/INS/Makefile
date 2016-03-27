@@ -1,5 +1,5 @@
-Solver : Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o
-				 gfortran -o Solver Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o
+Solver : Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o
+				 gfortran -o Solver Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o
 
 Grid_interface.o Grid_interface.mod: Grid_interface.F90
 				gfortran -c Grid_interface.F90
@@ -25,8 +25,14 @@ IncompNS_data.o IncompNS_data.mod: IncompNS_data.F90 Solver.h
 IncompNS_init.o: IncompNS_init.F90 Grid_data.mod IncompNS_data.mod IncompNS_interface.mod Solver.h
 				gfortran -c IncompNS_init.F90
 
-IncompNS_rk3.o: IncompNS_rk3.F90 Grid_data.mod IncompNS_data.mod Solver.h
+IncompNS_rk3.o: IncompNS_rk3.F90 Grid_data.mod IncompNS_data.mod IO_interface.mod Poisson_interface.mod Solver.h
 				gfortran -c IncompNS_rk3.F90
+
+Poisson_interface.o Poisson_interface.mod: Poisson_interface.F90 Solver.h
+				gfortran -c Poisson_interface.F90
+
+Poisson_solver.o: Poisson_solver.F90
+				gfortran -c Poisson_solver.F90
 
 Solver.o : Solver.F90 Grid_interface.mod IO_interface.mod IncompNS_interface.mod
 				gfortran -c Solver.F90
