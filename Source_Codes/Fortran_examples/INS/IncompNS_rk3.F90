@@ -84,8 +84,8 @@ subroutine IncompNS_rk3()
 
        call Poisson_solver(ut,vt,p,dx,dy,dt,p_res,p_counter)
 
-       u(2:Nxb,2:Nyb+1) = u(2:Nxb,2:Nyb+1) + dt*(p(3:Nxb+1,2:Nyb+1)-p(2:Nxb,2:Nyb+1))
-       v(2:Nxb+1,2:Nyb) = v(2:Nxb+1,2:Nyb) + dt*(p(2:Nxb+1,3:Nyb+1)-p(2:Nxb+1,2:Nyb))
+       u(2:Nxb,2:Nyb+1) = u(2:Nxb,2:Nyb+1) + (dt/dx)*(p(3:Nxb+1,2:Nyb+1)-p(2:Nxb,2:Nyb+1))
+       v(2:Nxb+1,2:Nyb) = v(2:Nxb+1,2:Nyb) + (dt/dy)*(p(2:Nxb+1,3:Nyb+1)-p(2:Nxb+1,2:Nyb))
 
 
        ! Boundary Conditions
@@ -175,8 +175,8 @@ subroutine Convective_V(ut,vt,dx,dy,C2)
       real, dimension(Nxb,Nyb-1) :: vn, vs, ve, vw, ue, uw
       real, dimension(Nxb,Nyb-1), intent(out) :: C2
 
-      vn = (vt(2:Nxb+1,2:Nyb)+vt(2:Nxb+1,1:Nyb-1))/2
-      vs = (vt(2:Nxb+1,2:Nyb)+vt(2:Nxb+1,3:Nyb+1))/2
+      vs = (vt(2:Nxb+1,2:Nyb)+vt(2:Nxb+1,1:Nyb-1))/2
+      vn = (vt(2:Nxb+1,2:Nyb)+vt(2:Nxb+1,3:Nyb+1))/2
       ve = (vt(2:Nxb+1,2:Nyb)+vt(3:Nxb+2,2:Nyb))/2
       vw = (vt(2:Nxb+1,2:Nyb)+vt(1:Nxb,2:Nyb))/2
       ue = (ut(2:Nxb+1,2:Nyb)+ut(2:Nxb+1,3:Nyb+1))/2
