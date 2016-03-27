@@ -1,7 +1,5 @@
 module IncompNS_data
 
-        use Grid_data
-
 #include "Solver.h"
 
      

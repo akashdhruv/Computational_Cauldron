@@ -34,8 +34,8 @@ subroutine Grid_init()
 
              t = 300.0
 
-             !dt = .5*min(dx,dy)
-             dt = (0.5*(dx**2)*(dy**2))/(inRe*((dx**2)+(dy**2)))
+             dt = .05*min(dx,dy)
+             !dt = (0.5*(dx**2)*(dy**2))/(inRe*((dx**2)+(dy**2)))
 
              nt = t/dt
 

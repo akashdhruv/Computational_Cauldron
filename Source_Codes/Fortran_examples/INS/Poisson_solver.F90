@@ -1,6 +1,7 @@
 subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
-   use IncompNS_Data
+  use IncompNS_data
+  use Grid_data 
 
 #include "Solver.h"
                 
@@ -32,8 +33,8 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 !     do j=2,Nyb+1
 !        do i=2,Nxb+1
               
-!            p(i,j)=(((p_old(i,j+1)+p_old(i,j-1))/(dy*dy))&
-!                   +((p_old(i+1,j)+p_old(i-1,j))/(dx*dx))&
+!            p(i,j)=(((p(i,j+1)+p(i,j-1))/(dy*dy))&
+!                   +((p(i+1,j)+p(i-1,j))/(dx*dx))&
 !                   -(1/(dy*dt))*(v(i,j)-v(i,j-1))&
 !                   -(1/(dx*dt))*(u(i,j)-u(i-1,j)))&
 !                   *(1/((2/(dx*dx))+(2/(dy*dy))))
@@ -59,7 +60,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
      
      p_res = sqrt(p_res/((Nxb+2)*(Nyb+2)))
 
-   if( (p_res .lt. 0.000001 ) .and. (p_res .ne. 0) ) exit
+     if( (p_res .lt. 0.000001 ) .and. (p_res .ne. 0) ) exit
 
   end do
 

@@ -12,7 +12,6 @@ module Poisson_interface
                 real, intent(out) :: p_res
                 integer, intent(out) :: p_counter
              end subroutine Poisson_solver
-
        end interface
 
 

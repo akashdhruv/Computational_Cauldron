@@ -1,7 +1,7 @@
 subroutine IncompNS_init()
 
-      use Grid_data
       use IncompNS_data
+      use Grid_data
       use IncompNS_interface, ONLY: IncompNS_rk3
 
 #include "Solver.h"
