@@ -1,5 +1,5 @@
 
-## Fortran based Lid Dirven Cavity Solver using make utility ## 
+## Fortran based Lid Dirven Cavity Solver using make utility 
 
 Execution instructions
 
