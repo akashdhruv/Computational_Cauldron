@@ -84,8 +84,8 @@ subroutine IncompNS_rk3()
 
        call Poisson_solver(ut,vt,p,dx,dy,dt,p_res,p_counter)
 
-       u(2:Nxb,2:Nyb+1) = u(2:Nxb,2:Nyb+1) + (dt/dx)*(p(3:Nxb+1,2:Nyb+1)-p(2:Nxb,2:Nyb+1))
-       v(2:Nxb+1,2:Nyb) = v(2:Nxb+1,2:Nyb) + (dt/dy)*(p(2:Nxb+1,3:Nyb+1)-p(2:Nxb+1,2:Nyb))
+       u(2:Nxb,2:Nyb+1) = ut(2:Nxb,2:Nyb+1) + (dt/dx)*(p(3:Nxb+1,2:Nyb+1)-p(2:Nxb,2:Nyb+1))
+       v(2:Nxb+1,2:Nyb) = vt(2:Nxb+1,2:Nyb) + (dt/dy)*(p(2:Nxb+1,3:Nyb+1)-p(2:Nxb+1,2:Nyb))
 
 
        ! Boundary Conditions
