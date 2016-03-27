@@ -5,10 +5,7 @@ module Grid_data
        implicit none
 
        real, save :: Lx
-       real, save :: Ly 
-
-       integer, save :: Nxb
-       integer, save :: Nyb
+       real, save :: Ly
 
        integer, save :: iProcs
        integer, save :: jProcs
@@ -22,5 +19,14 @@ module Grid_data
 
        real, save :: inRe
        real, save :: omega
+
+       real, save, dimension(Nxb+1,Nyb+1) :: x
+       real, save, dimension(Nxb+1,Nyb+1) :: y
+
+       real, save :: t
+       real, save :: dt
+
+       integer, save :: nt
+
 
 end module Grid_data 
