@@ -31,7 +31,7 @@ IncompNS_rk3.o: IncompNS_rk3.F90 Grid_data.mod IncompNS_data.mod IO_interface.mo
 Poisson_interface.o Poisson_interface.mod: Poisson_interface.F90 Solver.h
 				gfortran -c Poisson_interface.F90
 
-Poisson_solver.o: Poisson_solver.F90
+Poisson_solver.o: Poisson_solver.F90 IncompNS_data.mod Solver.h
 				gfortran -c Poisson_solver.F90
 
 Solver.o : Solver.F90 Grid_interface.mod IO_interface.mod IncompNS_interface.mod

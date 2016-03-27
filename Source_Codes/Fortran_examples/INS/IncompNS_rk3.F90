@@ -29,6 +29,22 @@ subroutine IncompNS_rk3()
 
        integer :: tstep, p_counter, i
 
+       ut=0
+       vt=0
+
+       u_old=0
+       v_old=0
+  
+       C1 = 0
+       G1 = 0
+       D1 = 0
+       G1_old = 0
+
+       C2 = 0
+       G2 = 0
+       D2 = 0
+       G2_old = 0
+
        tstep = 0
 
      do while (tstep<nt)
@@ -38,36 +54,37 @@ subroutine IncompNS_rk3()
 
        ! Predictor Step
 
-       call Convective_U(ut,vt,dx,dy,C1)
-       call Diffusive_U(ut,vt,dx,dy,inRe,D1)
+       call Convective_U(u,v,dx,dy,C1)
+       call Diffusive_U(u,v,dx,dy,inRe,D1)
        G1 = C1 + D1
 
        if (tstep == 0) then
 
-              ut(2:Nxb,2:Nyb+1)=ut(2:Nxb,2:Nyb+1)+(dt/1)*(G1)
+              ut(2:Nxb,2:Nyb+1)=u(2:Nxb,2:Nyb+1)+(dt/1)*(G1)
               G1_old = G1
        else
 
-              ut(2:Nxb,2:Nyb+1)=ut(2:Nxb,2:Nyb+1)+(dt/2)*(3*G1_old-G1)
+              ut(2:Nxb,2:Nyb+1)=u(2:Nxb,2:Nyb+1)+(dt/2)*(3*G1_old-G1)
               G1_old = G1
        endif
 
 
-       call Convective_V(ut,vt,dx,dy,C2)
-       call Diffusive_V(ut,vt,dx,dy,inRe,D2)
+       call Convective_V(u,v,dx,dy,C2)
+       call Diffusive_V(u,v,dx,dy,inRe,D2)
        G2 = C2 + D2
 
        if (tstep == 0) then
 
-              vt(2:Nxb+1,2:Nyb)=vt(2:Nxb+1,2:Nyb)+(dt/1)*(G2)
+              vt(2:Nxb+1,2:Nyb)=v(2:Nxb+1,2:Nyb)+(dt/1)*(G2)
               G2_old = G2
        else
 
-              vt(2:Nxb+1,2:Nyb)=ut(2:Nxb+1,2:Nyb)+(dt/2)*(3*G2_old-G2)
+              vt(2:Nxb+1,2:Nyb)=v(2:Nxb+1,2:Nyb)+(dt/2)*(3*G2_old-G2)
               G2_old = G2
        endif
 
        ! Boundary Conditions
+
        vt(1,:)=-vt(2,:)
        vt(Nxb+2,:)=-vt(Nxb+1,:)
 
@@ -82,7 +99,7 @@ subroutine IncompNS_rk3()
 
        ! Poisson Solver
 
-       call Poisson_solver(ut,vt,p,dx,dy,dt,p_res,p_counter)
+       call Poisson_solver(ut,vt,p_res,p_counter)
 
        u(2:Nxb,2:Nyb+1) = ut(2:Nxb,2:Nyb+1) + (dt/dx)*(p(3:Nxb+1,2:Nyb+1)-p(2:Nxb,2:Nyb+1))
        v(2:Nxb+1,2:Nyb) = vt(2:Nxb+1,2:Nyb) + (dt/dy)*(p(2:Nxb+1,3:Nyb+1)-p(2:Nxb+1,2:Nyb))

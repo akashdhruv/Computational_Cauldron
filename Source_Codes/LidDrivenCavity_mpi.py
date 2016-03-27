@@ -21,8 +21,8 @@ comm.Barrier()
 Lx=1.
 Ly=1.  
 
-Nxb=48
-Nyb=12
+Nxb=20
+Nyb=5
 
 iProcs=1
 jProcs=4
@@ -41,7 +41,7 @@ norm_v=0.
 
 # Global Constants
 
-inRe=0.001
+inRe=0.01
 U=1.0
 
 w=1. # Relaxation factor
@@ -86,9 +86,9 @@ def F2C(vn,vs,ve,vw,ue,uw,dx,dy):
 t=0
 tmax=5.
 
-#dt=0.5*(dx**2)*(dy**2)/(inRe*(dx**2+dy**2))
+dt=0.5*(dx**2)*(dy**2)/(inRe*(dx**2+dy**2))
 #dt=0.5*(min(dx,dy))**2/inRe
-dt=0.5*min(dx,dy)/U
+#dt=0.5*min(dx,dy)/U
 
 nt=int((tmax-t)/dt)
 

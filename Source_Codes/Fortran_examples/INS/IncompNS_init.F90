@@ -8,6 +8,10 @@ subroutine IncompNS_init()
    
       implicit none
 
+      u = 0
+      v = 0
+      p = 0
+
       call IncompNS_rk3()
       
 end subroutine IncompNS_init
