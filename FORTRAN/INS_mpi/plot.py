@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-x=np.loadtxt('X.dat')
-y=np.loadtxt('Y.dat')
-u=np.loadtxt('U.dat')
-v=np.loadtxt('V.dat')
+x=np.loadtxt('X0.dat')
+y=np.loadtxt('Y0.dat')
+u=np.loadtxt('U0.dat')
+v=np.loadtxt('V0.dat')
 
 M=128+1
 N=128+1

@@ -10,19 +10,16 @@ subroutine Grid_init()
 
 #ifdef SOLVER_GRID_UG
  
-             Lx=1.0
-             Ly=1.0
-
              iProcs = 1
-             jProcs = 1
+             jProcs = 1  
 
-             Nx = Nxb * iProcs
-             Ny = Nxb * jProcs
+             Lx = 1/iProcs
+             Ly = 1/jProcs
 
-             dx=Lx/Nx
-             dy=Ly/Ny
+             dx=Lx/Nxb
+             dy=Ly/Nyb
 
-             inRe = .001
+             inRe = .0003125
 
              do i=1,Nyb+1
                  x(:,i)=dx*(/(I,I=0,Nxb)/)
@@ -38,8 +35,7 @@ subroutine Grid_init()
              dt = .05*min(dx,dy)
              !dt = (0.5*(dx**2)*(dy**2))/(inRe*((dx**2)+(dy**2)))
 
-             !nt = t/dt
-             nt=1
+             nt = t/dt
 
 #endif
 
