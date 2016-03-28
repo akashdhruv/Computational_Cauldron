@@ -8,10 +8,10 @@ Execution instructions
   3. Type
 
      ~~~terminal 
-        make
+        make FF=[your_fortran_compiler]
         ./Solver 
      ~~~
-
+    
   4. To plot results, edit the python file (plot.py) to match your grid size and simply type
 
      ~~~terminal
