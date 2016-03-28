@@ -60,7 +60,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
      
      p_res = sqrt(p_res/((Nxb+2)*(Nyb+2)))
 
-     if( (p_res .lt. 0.000001 ) .and. (p_res .ne. 0) ) exit
+     if( (p_res .lt. 0.0001 ) .and. (p_res .ne. 0) ) exit
 
   end do
 

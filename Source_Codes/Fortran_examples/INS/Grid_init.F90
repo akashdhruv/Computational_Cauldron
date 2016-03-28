@@ -22,7 +22,7 @@ subroutine Grid_init()
              dx=Lx/Nx
              dy=Ly/Ny
 
-             inRe = .01
+             inRe = .001
 
              do i=1,Nyb+1
                  x(:,i)=dx*(/(I,I=0,Nxb)/)
@@ -32,8 +32,9 @@ subroutine Grid_init()
                  y(i,:)=dy*(/(I,I=0,Nyb)/)
              enddo
 
-             t = 300.0
+             t = 30.0
 
+             !dt = 0.000001
              dt = .05*min(dx,dy)
              !dt = (0.5*(dx**2)*(dy**2))/(inRe*((dx**2)+(dy**2)))
 

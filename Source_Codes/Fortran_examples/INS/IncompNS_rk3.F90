@@ -1,6 +1,6 @@
 subroutine IncompNS_rk3()
 
-       use IO_interface, ONLY: IO_display
+       use IO_interface, ONLY: IO_display, IO_write
        use Poisson_interface, ONLY: Poisson_solver            
        use IncompNS_data
        use Grid_data
@@ -11,6 +11,9 @@ subroutine IncompNS_rk3()
        
        real, dimension(Nxb+1,Nyb+2) :: ut
        real, dimension(Nxb+2,Nyb+1) :: vt
+
+       real, dimension(Nxb+1,Nyb+1) :: uu
+       real, dimension(Nxb+1,Nyb+1) :: vv
 
        real, dimension(Nxb+1,Nyb+2) :: u_old
        real, dimension(Nxb+2,Nyb+1) :: v_old
@@ -131,15 +134,20 @@ subroutine IncompNS_rk3()
 
        if (mod(tstep,5) == 0) then       
 
-          call IO_display(u_res,v_res,p_res,p_counter)
+          call IO_display(u_res,v_res,p_res,p_counter,tstep*dt)
       
-          if( (u_res .lt. 0.0000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.0000001) .and. (v_res .ne. 0) ) exit
+          if( (u_res .lt. 0.000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.000001) .and. (v_res .ne. 0) ) exit
 
        endif
 
        tstep = tstep +1
 
      end do
+
+     uu = (u(:,1:Nyb+1)+u(:,2:Nyb+2))/2
+     vv = (v(1:Nxb+1,:)+v(2:Nxb+2,:))/2
+
+     call IO_write(x,y,uu,vv)
 
 end subroutine IncompNS_rk3
 
