@@ -8,10 +8,15 @@ Execution instructions
   3. Type
 
      ~~~terminal 
-           make
-           ./Solver 
+        make
+        ./Solver 
      ~~~
 
+  4. To plot results, edit the python file (plot.py) to match your grid size and simply type
+
+     ~~~terminal
+        python plot.py
+     ~~~ 
 
 Author - Akash Dhruv
 

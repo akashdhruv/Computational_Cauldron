@@ -50,7 +50,11 @@ subroutine IncompNS_rk3()
 
        tstep = 0
 
+
      do while (tstep<nt)
+
+       v_res = 0
+       u_res = 0
 
        u_old = u
        v_old = v

@@ -1,14 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-data1=np.loadtxt('../Data/LidData00.dat')
-data2=np.loadtxt('../Data/LidData01.dat')
-data3=np.loadtxt('../Data/LidData02.dat')
-data4=np.loadtxt('../Data/LidData03.dat')
-data5=np.loadtxt('../Data/LidData04.dat')
-data6=np.loadtxt('../Data/LidData05.dat')
-data7=np.loadtxt('../Data/LidData06.dat')
-data8=np.loadtxt('../Data/LidData07.dat')
+data1=np.loadtxt('LidData00.dat')
+data2=np.loadtxt('LidData01.dat')
+data3=np.loadtxt('LidData02.dat')
+data4=np.loadtxt('LidData03.dat')
+data5=np.loadtxt('LidData04.dat')
+data6=np.loadtxt('LidData05.dat')
+data7=np.loadtxt('LidData06.dat')
+data8=np.loadtxt('LidData07.dat')
 
 M=32+1
 N=4
