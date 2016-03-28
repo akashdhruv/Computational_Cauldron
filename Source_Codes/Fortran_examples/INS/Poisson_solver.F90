@@ -40,8 +40,8 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
               
             p(i,j)=(((p_old(i,j+1)+p(i,j-1))/(dy*dy))&
                    +((p_old(i+1,j)+p(i-1,j))/(dx*dx))&
-                   -(1/(dy*dt))*(v(i,j)-v(i,j-1))&
-                   -(1/(dx*dt))*(u(i,j)-u(i-1,j)))&
+                   -(1/(dy*dt))*(vt(i,j)-vt(i,j-1))&
+                   -(1/(dx*dt))*(ut(i,j)-ut(i-1,j)))&
                    *(1/((2/(dx*dx))+(2/(dy*dy))))*omega + (1-omega)*p(i,j)
 
         end do

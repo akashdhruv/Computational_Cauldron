@@ -62,7 +62,7 @@ subroutine IncompNS_rk3()
        ! Predictor Step
 
        call Convective_U(u,v,dx,dy,C1)
-       call Diffusive_U(u,v,dx,dy,inRe,D1)
+       call Diffusive_U(u,dx,dy,inRe,D1)
        G1 = C1 + D1
 
        if (tstep == 0) then
@@ -77,7 +77,7 @@ subroutine IncompNS_rk3()
 
 
        call Convective_V(u,v,dx,dy,C2)
-       call Diffusive_V(u,v,dx,dy,inRe,D2)
+       call Diffusive_V(v,dx,dy,inRe,D2)
        G2 = C2 + D2
 
        if (tstep == 0) then
@@ -216,14 +216,13 @@ subroutine Convective_V(ut,vt,dx,dy,C2)
 end subroutine Convective_V
 
 !! DIFFUSIVE U !!
-subroutine Diffusive_U(ut,vt,dx,dy,inRe,D1)
+subroutine Diffusive_U(ut,dx,dy,inRe,D1)
 
 #include "Solver.h"
 
       implicit none
 
       real,dimension(Nxb+1,Nyb+2), intent(in) :: ut
-      real,dimension(Nxb+2,Nyb+1), intent(in) :: vt
 
       real, intent(in) :: dx
       real, intent(in) :: dy
@@ -249,13 +248,12 @@ subroutine Diffusive_U(ut,vt,dx,dy,inRe,D1)
 end subroutine Diffusive_U
 
 !! DIFFUSIVE V !!
-subroutine Diffusive_V(ut,vt,dx,dy,inRe,D2)
+subroutine Diffusive_V(vt,dx,dy,inRe,D2)
 
 #include "Solver.h"
 
       implicit none
 
-      real,dimension(Nxb+1,Nyb+2), intent(in) :: ut
       real,dimension(Nxb+2,Nyb+1), intent(in) :: vt
 
       real, intent(in) :: dx
