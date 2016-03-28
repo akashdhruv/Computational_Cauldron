@@ -10,7 +10,7 @@ Execution instructions
   3. Type
 
      ~~~terminal 
-        make
+        make FF=[your_fortran_compiler] MPIFF=[your_mpif90_compiler]
         mpirun -n [number_of_procs] ./Solver 
      ~~~
 
