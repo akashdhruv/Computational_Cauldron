@@ -22,7 +22,7 @@ subroutine Grid_init()
              dx=Lx/Nx
              dy=Ly/Ny
 
-             inRe = .001
+             inRe = .01
 
              do i=1,Nyb+1
                  x(:,i)=dx*(/(I,I=0,Nxb)/)

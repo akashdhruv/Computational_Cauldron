@@ -23,25 +23,25 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
        
      p_old = p
 
-     p(2:Nxb+1,2:Nyb+1)= (((p_old(2:Nxb+1,3:Nyb+2)+p_old(2:Nxb+1,1:Nyb))/(dy*dy))& 
-                         +((p_old(3:Nxb+2,2:Nyb+1)+p_old(1:Nxb,2:Nyb+1))/(dx*dx))&
-                         -((1/(dy*dt))*(vt(2:Nxb+1,2:Nyb+1)-vt(2:Nxb+1,1:Nyb)))&
-                         -((1/(dx*dt))*(ut(2:Nxb+1,2:Nyb+1)-ut(1:Nxb,2:Nyb+1))))&
-                         *(1/((2/(dx*dx))+(2/(dy*dy))))*omega + (1-omega)*p(2:Nxb+1,2:Nyb+1)
+!     p(2:Nxb+1,2:Nyb+1)= (((p_old(2:Nxb+1,3:Nyb+2)+p(2:Nxb+1,1:Nyb))/(dy*dy))& 
+!                         +((p_old(3:Nxb+2,2:Nyb+1)+p(1:Nxb,2:Nyb+1))/(dx*dx))&
+!                         -((1/(dy*dt))*(vt(2:Nxb+1,2:Nyb+1)-vt(2:Nxb+1,1:Nyb)))&
+!                         -((1/(dx*dt))*(ut(2:Nxb+1,2:Nyb+1)-ut(1:Nxb,2:Nyb+1))))&
+!                         *(1/((2/(dx*dx))+(2/(dy*dy))))*omega + (1-omega)*p(2:Nxb+1,2:Nyb+1)
 
 
-!     do j=2,Nyb+1
-!        do i=2,Nxb+1
+     do j=2,Nyb+1
+        do i=2,Nxb+1
               
-!            p(i,j)=(((p(i,j+1)+p(i,j-1))/(dy*dy))&
-!                   +((p(i+1,j)+p(i-1,j))/(dx*dx))&
-!                   -(1/(dy*dt))*(v(i,j)-v(i,j-1))&
-!                   -(1/(dx*dt))*(u(i,j)-u(i-1,j)))&
-!                   *(1/((2/(dx*dx))+(2/(dy*dy))))
+            p(i,j)=(((p_old(i,j+1)+p(i,j-1))/(dy*dy))&
+                   +((p_old(i+1,j)+p(i-1,j))/(dx*dx))&
+                   -(1/(dy*dt))*(v(i,j)-v(i,j-1))&
+                   -(1/(dx*dt))*(u(i,j)-u(i-1,j)))&
+                   *(1/((2/(dx*dx))+(2/(dy*dy))))*omega + (1-omega)*p(i,j)
 
 
-!        end do
-!     end do
+        end do
+     end do
 
      ! Pressure BC
 
