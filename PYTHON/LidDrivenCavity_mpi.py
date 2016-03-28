@@ -25,7 +25,7 @@ Nxb=20
 Nyb=5
 
 iProcs=1
-jProcs=4
+jProcs=8
 
 tProcs=iProcs*jProcs
 
@@ -86,8 +86,8 @@ def F2C(vn,vs,ve,vw,ue,uw,dx,dy):
 t=0
 tmax=5.
 
-dt=0.5*(dx**2)*(dy**2)/(inRe*(dx**2+dy**2))
-#dt=0.5*(min(dx,dy))**2/inRe
+#dt=0.5*(dx**2)*(dy**2)/(inRe*(dx**2+dy**2))
+dt=0.05*(min(dx,dy))**2/inRe
 #dt=0.5*min(dx,dy)/U
 
 nt=int((tmax-t)/dt)
