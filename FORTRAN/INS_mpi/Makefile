@@ -1,4 +1,3 @@
-
 FF=gfortran
 MPIFF=mpif90
 

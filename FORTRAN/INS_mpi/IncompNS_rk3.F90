@@ -203,8 +203,8 @@ subroutine IncompNS_rk3()
 
      end do
 
-     uu = (u(1:Nxb+1,1:Nyb+1)+u(1:Nxb+1,2:Nyb+2))/2
-     vv = (v(1:Nxb+1,1:Nyb+1)+v(2:Nxb+2,1:Nyb+1))/2
+     uu = (u(1:Nxb+1,1:Nyb+1)+u(1:Nxb+1,2:Nyb+2))/2 + (u(2:Nxb+2,1:Nyb+1)+u(2:Nxb+2,2:Nyb+2))/2
+     vv = (v(1:Nxb+1,1:Nyb+1)+v(2:Nxb+2,1:Nyb+1))/2 + (v(1:Nxb+1,2:Nyb+2)+v(2:Nxb+2,2:Nyb+2))/2
 
      call IO_write(x,y,uu,vv,myid)
 

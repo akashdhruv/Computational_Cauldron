@@ -4,8 +4,8 @@ import numpy as np
 k=2
 d=2
 
-M=128+1
-N=32+1
+M=64+1
+N=64+1
 
 X=np.zeros((N*k,M*k),dtype=float)
 Y=np.zeros((N*k,M*k),dtype=float)
@@ -32,7 +32,7 @@ for i in range(0,k**d):
 
 plt.figure()
 #plt.title('Re = 1000, Grid = 128 x 128, Solver = FORTRAN')
-#plt.contourf(X,Y,U,density=5)
+#plt.contourf(X,Y,V,density=5)
 plt.streamplot(X,Y,U,V,density=5)
 plt.plot(X[:,0],Y[:,0],'k')
 plt.plot(X[:,-1],Y[:,-1],'k')
