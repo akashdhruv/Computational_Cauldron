@@ -1,7 +1,5 @@
 
-## Fortran based Lid Dirven Cavity Solver using make utility and MPI 
-
-Presently in Debug mode
+## Fortran based Lid Dirven Cavity Solver for an interconnected mesh network using make utility and MPI 
 
 Execution instructions
 

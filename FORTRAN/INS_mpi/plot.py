@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-x=np.loadtxt('X0.dat')
-y=np.loadtxt('Y0.dat')
-u=np.loadtxt('U0.dat')
-v=np.loadtxt('V0.dat')
+x=np.loadtxt('X1.dat')
+y=np.loadtxt('Y1.dat')
+u=np.loadtxt('U1.dat')
+v=np.loadtxt('V1.dat')
 
 M=128+1
-N=128+1
+N=32+1
 
 x=np.reshape(x,(N,M))
 y=np.reshape(y,(N,M))

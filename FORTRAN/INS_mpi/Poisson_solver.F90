@@ -2,13 +2,15 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
   use IncompNS_data
   use Grid_data 
+  use MPI_data
+  use MPI_interface, ONLY: MPI_applyBC, MPI_CollectResiduals
 
 #include "Solver.h"
                 
   implicit none
 
-  real, dimension(Nxb+1,Nyb+2), intent(in) :: ut
-  real, dimension(Nxb+2,Nyb+1), intent(in) :: vt
+  real, dimension(Nxb+2,Nyb+2), intent(in) :: ut
+  real, dimension(Nxb+2,Nyb+2), intent(in) :: vt
 
   real, dimension(Nxb+2,Nyb+2) :: p_old
 
@@ -51,12 +53,32 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
      ! Pressure BC
 
-     p(:,1)=p(:,2)
-     p(:,Nyb+2)=p(:,Nyb+1)
+     if ( mod(myid,HK) == 0) then
 
-     p(1,:)=p(2,:)
-     p(Nxb+2,:)=p(Nxb+1,:)
+           p(1,:)=p(2,:)
 
+     end if
+
+     if ( mod(myid,HK) == HK-1) then
+
+           p(Nxb+2,:)=p(Nxb+1,:)
+
+     end if
+
+
+     if ( myid/HK == 0) then
+
+           p(:,1)=p(:,2)
+
+     end if
+
+     if ( myid/HK == HK-1) then
+
+           p(:,Nyb+2)=p(:,Nyb+1)
+
+     end if
+
+     call MPI_applyBC(p)
 
      p_counter = p_counter + 1
 
@@ -64,7 +86,9 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
           p_res = p_res + sum((p(i,:)-p_old(i,:))**2)
      enddo
      
-     p_res = sqrt(p_res/((Nxb+2)*(Nyb+2)))
+     call MPI_CollectResiduals(p_res)
+
+     p_res = sqrt(p_res/((Nxb+2)*(Nyb+2)*(HK**HD)))
 
      if( (p_res .lt. 0.000001 ) .and. (p_res .ne. 0) ) exit
 

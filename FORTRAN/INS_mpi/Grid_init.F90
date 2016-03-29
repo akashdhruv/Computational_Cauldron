@@ -1,6 +1,7 @@
 subroutine Grid_init()
            
              use Grid_data
+             use MPI_data
 
 #include "Solver.h"
 
@@ -9,17 +10,17 @@ subroutine Grid_init()
             integer :: I
 
 #ifdef SOLVER_GRID_UG
- 
-             iProcs = 1
-             jProcs = 1  
 
-             Lx = 1/iProcs
-             Ly = 1/jProcs
+             Lx = 1
+             Ly = 1
+
+             Lx = Lx/HK
+             Ly = Ly/HK
 
              dx=Lx/Nxb
              dy=Ly/Nyb
 
-             inRe = .0003125
+             inRe = .001
 
              do i=1,Nyb+1
                  x(:,i)=dx*(/(I,I=0,Nxb)/)
@@ -29,12 +30,14 @@ subroutine Grid_init()
                  y(i,:)=dy*(/(I,I=0,Nyb)/)
              enddo
 
+             y=y+(myid/HK)*Ly
+             x=x+mod(myid,HK)*Lx                 
+
              t = 30.0
 
-             !dt = 0.000001
              dt = .05*min(dx,dy)
-             !dt = (0.5*(dx**2)*(dy**2))/(inRe*((dx**2)+(dy**2)))
 
+             !nt = 1
              nt = t/dt
 
 #endif

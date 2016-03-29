@@ -6,10 +6,6 @@ module Grid_data
 
        real, save :: Lx
        real, save :: Ly
-
-       integer, save :: iProcs
-       integer, save :: jProcs
-       integer, save :: tProcs
        
        integer, save :: Nx
        integer, save :: Ny
