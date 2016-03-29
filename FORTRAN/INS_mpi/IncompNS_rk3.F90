@@ -30,7 +30,7 @@ subroutine IncompNS_rk3()
        real, dimension(Nxb,Nyb)   :: D2
        real, dimension(Nxb,Nyb)   :: G2_old
 
-       real :: p_res, v_res, u_res
+       real :: p_res, v_res, u_res, u_res1, v_res1
 
        integer :: tstep, p_counter, i
 
@@ -57,6 +57,9 @@ subroutine IncompNS_rk3()
 
        v_res = 0
        u_res = 0
+
+       v_res1 = 0
+       u_res1 = 0
 
        u_old = u
        v_old = v
@@ -176,25 +179,25 @@ subroutine IncompNS_rk3()
           u_res = u_res + sum((u(:,i)-u_old(:,i))**2)
        enddo
 
-       call MPI_CollectResiduals(u_res)
+       call MPI_CollectResiduals(u_res,u_res1)
   
-       u_res = sqrt(u_res/((HK**HD)*(Nxb+2)*(Nyb+2)))
+       u_res = sqrt(u_res1/((HK**HD)*(Nxb+2)*(Nyb+2)))
 
        do i=1,Nyb+1
           v_res = v_res + sum((v(:,i)-v_old(:,i))**2)
        enddo
 
-       call MPI_CollectResiduals(v_res)
+       call MPI_CollectResiduals(v_res,v_res1)
 
-       v_res = sqrt(v_res/((HK**HD)*(Nxb+2)*(Nyb+2)))
+       v_res = sqrt(v_res1/((HK**HD)*(Nxb+2)*(Nyb+2)))
 
        if (mod(tstep,5) == 0 .and. myid == 0) then       
 
           call IO_display(u_res,v_res,p_res,p_counter,tstep*dt)
-      
-          if( (u_res .lt. 0.000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.000001) .and. (v_res .ne. 0) ) exit
 
-       endif
+       end if
+
+       if( (u_res .lt. 0.000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.000001) .and. (v_res .ne. 0) ) exit
 
        tstep = tstep +1
 

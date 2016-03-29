@@ -24,9 +24,9 @@ module MPI_interface
 
 
     interface 
-       subroutine MPI_CollectResiduals(res)
+       subroutine MPI_CollectResiduals(res,res1)
        implicit none
-       real, intent(inout) :: res
+       real, intent(inout) :: res,res1
        end subroutine MPI_CollectResiduals
     end interface
 

@@ -16,6 +16,8 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
   real, intent(out) :: p_res
         
+  real :: p_res1
+
   integer, intent(out) :: p_counter
   integer :: i,j
 
@@ -24,7 +26,8 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
  
   do while(p_counter<MaxIt)
 
-     p_res = 0       
+     p_res = 0  
+     p_res1 = 0     
      p_old = p
 
 #ifdef POISSON_SOLVER_JACOBI
@@ -86,9 +89,9 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
           p_res = p_res + sum((p(i,:)-p_old(i,:))**2)
      enddo
      
-     call MPI_CollectResiduals(p_res)
+     call MPI_CollectResiduals(p_res,p_res1)
 
-     p_res = sqrt(p_res/((Nxb+2)*(Nyb+2)*(HK**HD)))
+     p_res = sqrt(p_res1/((Nxb+2)*(Nyb+2)*(HK**HD)))
 
      if( (p_res .lt. 0.000001 ) .and. (p_res .ne. 0) ) exit
 

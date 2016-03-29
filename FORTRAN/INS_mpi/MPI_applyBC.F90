@@ -50,7 +50,7 @@ subroutine MPI_applyBC(u_ex)
 
        end if
 
-!       call MPI_BARRIER(MPI_COMM_WORLD)
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
 
        !! Second dimension !!
 
@@ -93,7 +93,7 @@ subroutine MPI_applyBC(u_ex)
 
        end if            
 
-!       call MPI_BARRIER(MPI_COMM_WORLD)
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
 
 end subroutine
 
