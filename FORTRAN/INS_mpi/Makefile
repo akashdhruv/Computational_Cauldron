@@ -65,3 +65,6 @@ Solver.o : Solver.F90 Grid_interface.mod IO_interface.mod IncompNS_interface.mod
 
 clean:
 	rm *.o *.mod *.dat
+
+clr:
+	rm *.o *.mod
