@@ -11,6 +11,8 @@ subroutine MPI_applyBC(u_ex)
        real, dimension(Nxb+2,Nyb+2), intent(inout) :: u_ex
        integer :: status(MPI_STATUS_SIZE)
 
+       call MPI_BARRIER(MPI_COMM_WORLD, ierr)
+
        if(mod(mod(myid,HK),2) == 0) then
            
              if(mod(myid,HK) == 0) then

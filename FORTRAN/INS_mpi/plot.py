@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-k=3
+k=2
 d=2
 
 M=20+1

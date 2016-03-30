@@ -30,7 +30,7 @@
 #define Nxb 128
 #define Nyb 128
 
-#define HK 3
+#define HK 2
 #define HD 2
  
 #define MaxIt 600
