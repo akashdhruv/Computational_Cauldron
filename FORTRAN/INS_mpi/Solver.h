@@ -27,10 +27,10 @@
 
 #define MAX_STRING_LENGTH 80
 
-#define Nxb 64
-#define Nyb 64
+#define Nxb 20
+#define Nyb 20
 
-#define HK 2
+#define HK 3
 #define HD 2
  
 #define MaxIt 600
