@@ -68,6 +68,7 @@ subroutine IncompNS_rk3()
 
        call Convective_U(u,v,dx,dy,C1)
        call Diffusive_U(u,dx,dy,inRe,D1)
+
        G1 = C1 + D1
 
        if (tstep == 0) then
@@ -83,6 +84,7 @@ subroutine IncompNS_rk3()
 
        call Convective_V(u,v,dx,dy,C2)
        call Diffusive_V(v,dx,dy,inRe,D2)
+
        G2 = C2 + D2
 
        if (tstep == 0) then
