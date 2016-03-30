@@ -21,11 +21,11 @@ Y=Y';
 T = zeros(Nx+2,Ny+2);
 T = T+(40+273);
 
-t = 20.0;
+t = 90.0;
 
 alpha = 8.418*(10^-5);
 k = 205.0;
-g = .0001;
+g = 0;
 
 dt = (1/(2*alpha))*(1/((1/(dx^2))+(1/(dy^2))));
 
@@ -70,7 +70,7 @@ end
 
 TT = (T(1:Nx+1,1:Ny+1)+T(1:Nx+1,2:Ny+2)+T(2:Nx+2,1:Ny+1)+T(2:Nx+2,2:Ny+2))/4;
 
-%figure
-%contourf(X,Y,TT-273,'LineStyle','none')
+figure
+contourf(X,Y,TT-273,'LineStyle','none')
 figure
 contour(X,Y,TT-273,[linspace(0,50,50),linspace(50,350,50)])
