@@ -5,8 +5,8 @@ clc
 Lx = 1.0;
 Ly = 1.0;
 
-Nx = 200;
-Ny = 200;
+Nx = 100;
+Ny = 100;
 
 dx = Lx/Nx;
 dy = Ly/Ny;
@@ -19,11 +19,11 @@ X=X';
 Y=Y';
 
 T = zeros(Nx+2,Ny+2);
-T = T+(40+273);
+T = T+(20+273);
 
-t = 90.0;
+t = 300.0;
 
-alpha = 8.418*(10^-5);
+alpha = 10^-4;
 k = 205.0;
 g = 0;
 
@@ -35,11 +35,11 @@ tstep = 0;
 
 % Boundary Condition Parameters
 
-q1 = 1000000;
-q2 = 500000;
+q1 = 0;
+q2 = 0;
 
-T1 = 5+273;
-T2 = 5+273;
+T1 = 100+273;
+T2 = 100+273;
 
 while (tstep < nt)
     
@@ -58,11 +58,16 @@ while (tstep < nt)
     T(:,Ny+2) = 2*T2 - T(:,Ny+1);
     
  
-    T_res = sum(sum((T-T_old).^2))/((Nx+2)*(Ny+2));
+    T_mid = T(Nx/2,Ny/2);
     
-    if (T_res < .000001 && T_res ~=0) 
+    if(T_mid >= 70+273)
         exit
     end
+    %T_res = sum(sum((T-T_old).^2))/((Nx+2)*(Ny+2));
+    
+    %if (T_res < .000001 && T_res ~=0) 
+    %    exit
+    %end
     
     tstep = tstep + 1;
     
