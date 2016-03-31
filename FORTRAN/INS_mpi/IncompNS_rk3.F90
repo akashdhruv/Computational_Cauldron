@@ -113,7 +113,7 @@ subroutine IncompNS_rk3()
 
            vt(Nxb+2,:)=-vt(Nxb+1,:)
            ut(Nxb+1,:)=0
-!           ut(Nxb+2,:)=0
+           ut(Nxb+2,:)=0
 
        end if
 
@@ -127,7 +127,7 @@ subroutine IncompNS_rk3()
 
        if ( myid/HK == HK-1) then
     
- !          vt(:,Nyb+2)=0
+           vt(:,Nyb+2)=0
            vt(:,Nyb+1)=0
            ut(:,Nyb+2)=2-ut(:,Nyb+1)
 
@@ -156,7 +156,7 @@ subroutine IncompNS_rk3()
 
            v(Nxb+2,:)=-v(Nxb+1,:)
            u(Nxb+1,:)=0
-!           u(Nxb+2,:)=0
+           u(Nxb+2,:)=0
 
        end if
 
@@ -170,7 +170,7 @@ subroutine IncompNS_rk3()
 
        if ( myid/HK == HK-1) then
 
- !          v(:,Nyb+2)=0
+           v(:,Nyb+2)=0
            v(:,Nyb+1)=0
            u(:,Nyb+2)=2-u(:,Nyb+1)
 
@@ -204,8 +204,8 @@ subroutine IncompNS_rk3()
 
      end do
 
-     uu = (u(1:Nxb+1,1:Nyb+1)+u(1:Nxb+1,2:Nyb+2))/2 + (u(2:Nxb+2,1:Nyb+1)+u(2:Nxb+2,2:Nyb+2))/2
-     vv = (v(1:Nxb+1,1:Nyb+1)+v(2:Nxb+2,1:Nyb+1))/2 + (v(1:Nxb+1,2:Nyb+2)+v(2:Nxb+2,2:Nyb+2))/2
+     uu = ((u(1:Nxb+1,1:Nyb+1)+u(1:Nxb+1,2:Nyb+2))/2 + (u(2:Nxb+2,1:Nyb+1)+u(2:Nxb+2,2:Nyb+2))/2)/2
+     vv = ((v(1:Nxb+1,1:Nyb+1)+v(2:Nxb+2,1:Nyb+1))/2 + (v(1:Nxb+1,2:Nyb+2)+v(2:Nxb+2,2:Nyb+2))/2)/2
      !uu = u(2:Nxb+1,2:Nyb+1)
      !vv = v(2:Nxb+1,2:Nyb+1)
 
