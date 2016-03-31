@@ -4,8 +4,8 @@ import numpy as np
 k=2
 d=2
 
-M=20+1
-N=20+1
+M=32+1
+N=32+1
 
 X=np.zeros((N*k,M*k),dtype=float)
 Y=np.zeros((N*k,M*k),dtype=float)

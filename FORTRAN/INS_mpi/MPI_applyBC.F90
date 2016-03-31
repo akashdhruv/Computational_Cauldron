@@ -63,7 +63,7 @@ subroutine MPI_applyBC(u_ex)
              if(myid/HK == 0) then
 
                   call MPI_SEND(u_ex(:,Nyb+1), Nxb+2, MPI_REAL, myid+(HK**1), 5, MPI_COMM_WORLD,ierr)
-                  call MPI_RECV(u_ex(:,Nyb+1), Nxb+2, MPI_REAL, myid+(HK**1), 6,MPI_COMM_WORLD,status, ierr)
+                  call MPI_RECV(u_ex(:,Nyb+2), Nxb+2, MPI_REAL, myid+(HK**1), 6,MPI_COMM_WORLD,status, ierr)
 
              else if(myid/HK == HK-1) then
 

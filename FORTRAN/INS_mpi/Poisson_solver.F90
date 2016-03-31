@@ -56,6 +56,8 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
      ! Pressure BC
 
+     call MPI_applyBC(p)
+
      if ( mod(myid,HK) == 0) then
 
            p(1,:)=p(2,:)
@@ -80,8 +82,6 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
            p(:,Nyb+2)=p(:,Nyb+1)
 
      end if
-
-     call MPI_applyBC(p)
 
      p_counter = p_counter + 1
 

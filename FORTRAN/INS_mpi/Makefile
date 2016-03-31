@@ -62,7 +62,6 @@ MPI_CollectResiduals.o: MPI_CollectResiduals.F90 MPI_data.mod
 Solver.o : Solver.F90 Grid_interface.mod IO_interface.mod IncompNS_interface.mod MPI_interface.mod
 				$(FF) -c Solver.F90
 
-
 clean:
 	rm *.o *.mod *.dat
 
