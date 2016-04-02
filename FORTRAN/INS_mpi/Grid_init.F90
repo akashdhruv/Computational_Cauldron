@@ -70,40 +70,23 @@ subroutine Grid_init()
 #endif
 
 
-dx_n(1:Nxb,:) = x(2:Nxb+1,:)-x(1:Nxb,:)
-dy_n(:,1:Nyb) = y(:,2:Nyb+1)-y(:,1:Nyb)
+!dx_n(1:Nxb,:) = x(2:Nxb+1,:)-x(1:Nxb,:)
+!dy_n(:,1:Nyb) = y(:,2:Nyb+1)-y(:,1:Nyb)
 
-dx_n(Nxb+1,:) = dx_n(Nxb,:)
-dy_n(:,Nyb+1) = dy_n(:,Nyb)
+!dx_n(Nxb+1,:) = dx_n(Nxb,:)
+!dy_n(:,Nyb+1) = dy_n(:,Nyb)
 
-dx_a = 0.5*(dx_n(1:Nxb,1:Nyb)+dx_n(2:Nxb+1,1:Nyb))
-dy_a = dy_n(1:Nxb,1:Nyb)
+!dx_a = 0.5*(dx_n(1:Nxb,1:Nyb)+dx_n(2:Nxb+1,1:Nyb))
+!dy_a = dy_n(1:Nxb,1:Nyb)
 
-dx_b = dx_n(1:Nxb,1:Nyb)
-dy_b = 0.5*(dy_n(1:Nxb,1:Nyb)+dy_n(1:Nxb,2:Nyb+1))
+!dx_b = dx_n(1:Nxb,1:Nyb)
+!dy_b = 0.5*(dy_n(1:Nxb,1:Nyb)+dy_n(1:Nxb,2:Nyb+1))
 
-dx_c(2:Nxb+1,:) = 0.5*(dx_n(1:Nxb,:)+dx_n(2:Nxb+1,:))
-dx_c(1,:) = dx_c(2,:)
+!dx_c(2:Nxb+1,:) = 0.5*(dx_n(1:Nxb,:)+dx_n(2:Nxb+1,:))
+!dx_c(1,:) = dx_c(2,:)
 
-dy_c(:,2:Nyb+1) = 0.5*(dy_n(:,1:Nyb)+dy_n(:,2:Nyb+1))
-dy_c(:,1) = dy_c(:,2)
-
-!dx_u(1:Nxb,1:Nyb) = dx
-!dx_u(Nxb+1,1:Nyb) = dx(Nxb,:)
-!dx_u(:,Nyb+1) = dx_u(:,Nyb)
-
-!dy_u(1:Nxb,1:Nyb) = 0.5*(dy(1:Nxb,1:Nyb)+dy(1:Nxb,2:Nyb+1))
-!dy_u(1:Nxb,Nyb+1) = dy(:,Nyb)
-!dy_u(Nxb+1,:)=dy_u(Nxb,:)
-
-!dx_v(1:Nxb,1:Nyb) = 0.5*(dx(1:Nxb,1:Nyb)+dx(2:Nxb+1,1:Nyb))
-!dx_v(Nxb+1,1:Nyb) = dx(Nxb,:)
-!dx_v(:,Nyb+1) = dx_v(:,Nyb)
-
-!dy_v(1:Nxb,1:Nyb) = dy
-!dy_v(1:Nxb,Nyb+1) = dy(:,Nyb)
-!dy_v(Nxb+1,:) = dy_v(Nxb,:)
-
+!dy_c(:,2:Nyb+1) = 0.5*(dy_n(:,1:Nyb)+dy_n(:,2:Nyb+1))
+!dy_c(:,1) = dy_c(:,2)
 
 !dt = 0.05*min(minval(dx),minval(dy))
 dt=0.05*min(dx,dy)
