@@ -4,8 +4,8 @@ import numpy as np
 k=2
 d=2
 
-M=32+1
-N=32+1
+M=31+1
+N=31+1
 
 X=np.zeros((N*k,M*k),dtype=float)
 Y=np.zeros((N*k,M*k),dtype=float)
@@ -38,6 +38,8 @@ plt.plot(X[:,0],Y[:,0],'k')
 plt.plot(X[:,-1],Y[:,-1],'k')
 plt.plot(X[0,:],Y[0,:],'k')
 plt.plot(X[-1,:],Y[-1,:],'k')
+plt.plot(X,Y,'g')
+plt.plot(X.T,Y.T,'g')
 #plt.ylim(-0.2,1.2)
 #plt.xlim(-0.2,2.2)
 plt.xlabel('X')

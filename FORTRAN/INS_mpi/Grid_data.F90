@@ -13,6 +13,10 @@ module Grid_data
        real, save :: dx
        real, save :: dy
 
+       real, save, dimension(Nxb+1,Nyb+1) :: dx_n, dy_n, dx_c, dy_c
+      
+       real, save, dimension(Nxb,Nyb) :: dx_a, dx_b,  dy_a, dy_b     
+      
        real, save :: inRe
 
        real, save, dimension(Nxb+1,Nyb+1) :: x

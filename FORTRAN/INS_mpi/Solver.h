@@ -1,4 +1,4 @@
-#define GRID 1
+#define GRID 1  
 
 #if GRID == 1
 #define SOLVER_GRID_UG
@@ -22,13 +22,19 @@
 
 #if SOLVER == 3
 #define POISSON_SOLVER_GSOR
-#define omega 1.1
+#define omega 1.4
 #endif
 
 #define MAX_STRING_LENGTH 80
 
-#define Nxb 32
-#define Nyb 32
+#define Nxb 31
+#define Nyb 31
+
+#define D_xmin -0.5
+#define D_ymin -0.5
+
+#define D_xmax 0.5
+#define D_ymax 0.5
 
 #define HK 2
 #define HD 2
