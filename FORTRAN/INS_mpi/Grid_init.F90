@@ -22,7 +22,7 @@ subroutine Grid_init()
      dy = Ly/Nyb
 
 
-     t = 50.0
+     t = 200.0
 
 #ifdef SOLVER_GRID_UG
 
@@ -48,7 +48,11 @@ subroutine Grid_init()
            x(:,i)=D_xmin+mod(myid,HK)*Lx+Lx*(cos((pi/(2*Nxb))*(/(I,I=Nxb,0,-1)/)))
        
         else
-           x(:,i)=D_xmin+mod(myid,HK)*Lx+dx*(/(I,I=0,Nxb)/)
+           !x(:,i)=D_xmin+mod(myid,HK)*Lx+dx*(/(I,I=0,Nxb)/)
+           x(1:Nxb/2+1,i)=D_xmin+mod(myid,HK)*Lx+Lx*(cos((pi/(Nxb))*(/(I,I=Nxb/2,0,-1)/)))/2
+           x(Nxb/2+2:Nxb+1,i)=D_xmin+mod(myid,HK)*Lx+Lx/2+&
+                              Lx*(1-cos((pi/(Nxb))*(/(I,I=1,Nxb/2)/)))/2
+
         end if
 
       enddo
@@ -62,7 +66,10 @@ subroutine Grid_init()
             y(i,:)=D_ymin+(myid/HK)*Ly+Ly*(cos((pi/(2*Nyb))*(/(I,I=Nyb,0,-1)/)))
 
         else
-           y(i,:)=D_ymin+(myid/HK)*Ly+dy*(/(I,I=0,Nyb)/)
+           !y(i,:)=D_ymin+(myid/HK)*Ly+dy*(/(I,I=0,Nyb)/)
+           y(i,1:Nyb/2+1)=D_ymin+(myid/HK)*Ly+Ly*(cos((pi/(Nyb))*(/(I,I=Nyb/2,0,-1)/)))/2
+           y(i,Nyb/2+2:Nyb+1)=D_ymin+(myid/HK)*Ly+Ly/2+&
+                              Ly*(1-cos((pi/(Nyb))*(/(I,I=1,Nyb/2)/)))/2
         end if
 
      enddo
@@ -94,9 +101,9 @@ dy_b = dy_n(1:Nxb+1,2:Nyb+2) ! Use with Convective_U and Diffusive_V
 dx_c = 0.5*(dx_n(1:Nxb+1,1:Nyb+1)+dx_n(2:Nxb+2,1:Nyb+1)) ! Use with Pressure
 dy_c = 0.5*(dy_n(1:Nxb+1,1:Nyb+1)+dy_n(1:Nxb+1,2:Nyb+2)) ! Use with Pressure
 
-dt = 0.2*min(minval(dx_n),minval(dy_n))
+dt = 0.05*min(minval(dx_n),minval(dy_n))
 !dt=0.05*min(dx,dy)
-!dt = .000000001
+!dt = .00000001
 
 nt = t/dt
 !nt = 1

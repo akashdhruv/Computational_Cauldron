@@ -200,7 +200,7 @@ subroutine IncompNS_rk3()
        end if
 
 
-       if( (u_res .lt. 0.000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.000001) .and. (v_res .ne. 0) ) exit
+       if( (u_res .lt. 0.0000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.0000001) .and. (v_res .ne. 0) ) exit
 
        if(mod(tstep,5) == 0)then
         
@@ -317,9 +317,9 @@ subroutine Diffusive_U(ut,dx_b,dy_a,inRe,D1)
 
       !D1 = (inRe/dx)*(((uE-uP)/dx)-((uP-uW)/dx)) + (inRe/dy)*(((uN-uP)/dy)-((uP-uS)/dy))
       D1 = (inRe/dx_b(2:Nxb+1,1:Nyb))*((uE-uP)/dx_b(2:Nxb+1,1:Nyb))&
-          -(inRe/dx_b(1:Nxb,1:Nyb))*((uP-uW)/dx_b(1:Nxb,1:Nyb))&
+          -(inRe/dx_b(2:Nxb+1,1:Nyb))*((uP-uW)/dx_b(1:Nxb,1:Nyb))&
           +(inRe/dy_a(1:Nxb,2:Nyb+1))*((uN-uP)/dy_a(1:Nxb,2:Nyb+1))&
-          -(inRe/dy_a(1:Nxb,1:Nyb))*((uP-uS)/dy_a(1:Nxb,1:Nyb))
+          -(inRe/dy_a(1:Nxb,2:Nyb+1))*((uP-uS)/dy_a(1:Nxb,1:Nyb))
 
 end subroutine Diffusive_U
 
@@ -349,8 +349,8 @@ subroutine Diffusive_V(vt,dx_a,dy_b,inRe,D2)
 
       !D2 = (inRe/dx)*(((vE-vP)/dx)-((vP-vW)/dx)) + (inRe/dy)*(((vN-vP)/dy)-((vP-vS)/dy))
       D2 = (inRe/dx_a(2:Nxb+1,1:Nyb))*((vE-vP)/dx_a(2:Nxb+1,1:Nyb))&
-          -(inRe/dx_a(1:Nxb,1:Nyb))*((vP-vW)/dx_a(1:Nxb,1:Nyb))&
+          -(inRe/dx_a(2:Nxb+1,1:Nyb))*((vP-vW)/dx_a(1:Nxb,1:Nyb))&
           +(inRe/dy_b(1:Nxb,2:Nyb+1))*((vN-vP)/dy_b(1:Nxb,2:Nyb+1))&
-          -(inRe/dy_b(1:Nxb,1:Nyb))*((vP-vS)/dy_b(1:Nxb,1:Nyb))
+          -(inRe/dy_b(1:Nxb,2:Nyb+1))*((vP-vS)/dy_b(1:Nxb,1:Nyb))
 end subroutine Diffusive_V
 

@@ -50,12 +50,12 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 !                   *(1/((2/(dx*dx))+(2/(dy*dy))))*omega + (1-omega)*p(i,j)
 
 
-           p(i,j)=((p_old(i,j+1)/(dy_c(i,j)**2))+(p(i,j-1)/(dy_c(i,j)**2))&
-                  +(p_old(i+1,j)/(dx_c(i,j)**2))+(p(i-1,j)/(dx_c(i,j)**2))&
-                  -((1/(dy_b(i,j)*dt))*(vt(i,j)-vt(i,j-1)))&
-                  -((1/(dx_b(i,j)*dt))*(ut(i,j)-ut(i-1,j))))&
-                  *(1/((1/(dx_c(i,j)**2))+(1/(dy_c(i,j)**2))+&
-                   (1/(dx_c(i,j)**2))+(1/(dy_c(i,j)**2))))*omega + (1-omega)*p(i,j)
+           p(i,j)=((p_old(i,j+1)/(dy_c(i,j)*dy_b(i-1,j-1)))+(p(i,j-1)/(dy_b(i-1,j-1)*dy_c(i-1,j-1)))&
+                  +(p_old(i+1,j)/(dx_c(i,j)*dx_b(i-1,j-1)))+(p(i-1,j)/(dx_b(i-1,j-1)*dx_c(i-1,j-1)))&
+                  -((1/(dy_b(i-1,j-1)*dt))*(vt(i,j)-vt(i,j-1)))&
+                  -((1/(dx_b(i-1,j-1)*dt))*(ut(i,j)-ut(i-1,j))))&
+                  *(1/((1/(dx_b(i-1,j-1)*dx_c(i-1,j-1)))+(1/(dy_b(i-1,j-1)*dy_c(i-1,j-1)))+&
+                   (1/(dx_c(i,j)*dx_b(i-1,j-1)))+(1/(dy_c(i,j)*dy_b(i-1,j-1)))))*omega + (1-omega)*p(i,j)
                   
         end do
      end do
@@ -101,7 +101,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
      p_res = sqrt(p_res1/((Nxb+2)*(Nyb+2)*(HK**HD)))
 
-     if( (p_res .lt. 0.001 ) .and. (p_res .ne. 0) ) exit
+     if( (p_res .lt. 0.000001 ) .and. (p_res .ne. 0) ) exit
 
   end do
 
