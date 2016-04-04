@@ -70,27 +70,35 @@ subroutine Grid_init()
 #endif
 
 
-!dx_n(1:Nxb,:) = x(2:Nxb+1,:)-x(1:Nxb,:)
-!dy_n(:,1:Nyb) = y(:,2:Nyb+1)-y(:,1:Nyb)
+dx_n(2:Nxb+1,1:Nyb+1) = x(2:Nxb+1,:)-x(1:Nxb,:)
+dy_n(1:Nxb+1,2:Nyb+1) = y(:,2:Nyb+1)-y(:,1:Nyb)
 
-!dx_n(Nxb+1,:) = dx_n(Nxb,:)
-!dy_n(:,Nyb+1) = dy_n(:,Nyb)
+dx_n(1,:) = dx_n(2,:)
+dy_n(:,1) = dy_n(:,2)
 
-!dx_a = 0.5*(dx_n(1:Nxb,1:Nyb)+dx_n(2:Nxb+1,1:Nyb))
-!dy_a = dy_n(1:Nxb,1:Nyb)
+dx_n(:,1) = dx_n(:,2)
+dy_n(1,:) = dy_n(2,:)
 
-!dx_b = dx_n(1:Nxb,1:Nyb)
-!dy_b = 0.5*(dy_n(1:Nxb,1:Nyb)+dy_n(1:Nxb,2:Nyb+1))
+dx_n(Nxb+2,:) = dx_n(Nxb+1,:)
+dy_n(:,Nyb+2) = dy_n(:,Nyb+1)
 
-!dx_c(2:Nxb+1,:) = 0.5*(dx_n(1:Nxb,:)+dx_n(2:Nxb+1,:))
-!dx_c(1,:) = dx_c(2,:)
+dx_n(:,Nyb+2)=dx_n(:,Nyb+1)
+dy_n(Nxb+2,:)=dy_n(Nxb+1,:)
 
-!dy_c(:,2:Nyb+1) = 0.5*(dy_n(:,1:Nyb)+dy_n(:,2:Nyb+1))
-!dy_c(:,1) = dy_c(:,2)
+dx_a = 0.5*(dx_n(1:Nxb+1,1:Nyb+1)+dx_n(2:Nxb+2,1:Nyb+1)) ! Use with Convective_U and Diffusive_V
+dy_a = 0.5*(dy_n(1:Nxb+1,1:Nyb+1)+dy_n(1:Nxb+1,2:Nyb+2)) ! Use with Convective_V and Diffusive_U
 
-!dt = 0.05*min(minval(dx),minval(dy))
-dt=0.05*min(dx,dy)
-!dt = .0000001
+dx_b = dx_n(2:Nxb+2,1:Nyb+1) ! Use with Convective_V and Diffusive_U
+dy_b = dy_n(1:Nxb+1,2:Nyb+2) ! Use with Convective_U and Diffusive_V
+
+dx_c = 0.5*(dx_n(1:Nxb+1,1:Nyb+1)+dx_n(2:Nxb+2,1:Nyb+1)) ! Use with Pressure
+dy_c = 0.5*(dy_n(1:Nxb+1,1:Nyb+1)+dy_n(1:Nxb+1,2:Nyb+2)) ! Use with Pressure
+
+!print *,dx_c
+
+dt = 0.2*min(minval(dx_n),minval(dy_n))
+!dt=0.05*min(dx,dy)
+!dt = .000000001
 
 nt = t/dt
 !nt = 1

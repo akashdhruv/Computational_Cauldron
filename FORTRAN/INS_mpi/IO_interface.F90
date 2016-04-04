@@ -13,9 +13,9 @@ module IO_interface
        end interface
 
        interface
-             subroutine IO_write(x,y,uu,vv,id)
+             subroutine IO_write(x,y,uu,vv,pp,id)
              implicit none
-             real, dimension(Nxb+1,Nyb+1), intent(in) :: x,y,uu,vv
+             real, dimension(Nxb+1,Nyb+1), intent(in) :: x,y,uu,vv,pp
              integer, intent(in) :: id
              end subroutine IO_write
        end interface

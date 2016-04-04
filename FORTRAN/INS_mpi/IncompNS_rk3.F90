@@ -16,6 +16,7 @@ subroutine IncompNS_rk3()
 
        real, dimension(Nxb+1,Nyb+1) :: uu
        real, dimension(Nxb+1,Nyb+1) :: vv
+       real, dimension(Nxb+1,Nyb+1) :: pp
 
        real, dimension(Nxb+2,Nyb+2) :: u_old
        real, dimension(Nxb+2,Nyb+2) :: v_old
@@ -66,8 +67,8 @@ subroutine IncompNS_rk3()
 
        ! Predictor Step
 
-       call Convective_U(u,v,dx,dy,C1)
-       call Diffusive_U(u,dx,dy,inRe,D1)
+       call Convective_U(u,v,dx_a,dy_b,C1)
+       call Diffusive_U(u,dx_b,dy_a,inRe,D1)
 
        G1 = C1 + D1
 
@@ -82,8 +83,8 @@ subroutine IncompNS_rk3()
        endif
 
 
-       call Convective_V(u,v,dx,dy,C2)
-       call Diffusive_V(v,dx,dy,inRe,D2)
+       call Convective_V(u,v,dx_b,dy_a,C2)
+       call Diffusive_V(v,dx_a,dy_b,inRe,D2)
 
        G2 = C2 + D2
 
@@ -137,8 +138,8 @@ subroutine IncompNS_rk3()
 
        call Poisson_solver(ut,vt,p_res,p_counter)
 
-       u(2:Nxb+1,2:Nyb+1) = ut(2:Nxb+1,2:Nyb+1) - (dt/dx)*(p(3:Nxb+2,2:Nyb+1)-p(2:Nxb+1,2:Nyb+1))
-       v(2:Nxb+1,2:Nyb+1) = vt(2:Nxb+1,2:Nyb+1) - (dt/dy)*(p(2:Nxb+1,3:Nyb+2)-p(2:Nxb+1,2:Nyb+1))
+       u(2:Nxb+1,2:Nyb+1) = ut(2:Nxb+1,2:Nyb+1) - (dt/dx_a(2:Nxb+1,2:Nyb+1))*(p(3:Nxb+2,2:Nyb+1)-p(2:Nxb+1,2:Nyb+1))
+       v(2:Nxb+1,2:Nyb+1) = vt(2:Nxb+1,2:Nyb+1) - (dt/dy_a(2:Nxb+1,2:Nyb+1))*(p(2:Nxb+1,3:Nyb+2)-p(2:Nxb+1,2:Nyb+1))
 
        ! Boundary Conditions
 
@@ -198,7 +199,18 @@ subroutine IncompNS_rk3()
 
        end if
 
+
        if( (u_res .lt. 0.000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.000001) .and. (v_res .ne. 0) ) exit
+
+       if(mod(tstep,5) == 0)then
+        
+             uu = ((u(1:Nxb+1,1:Nyb+1)+u(1:Nxb+1,2:Nyb+2))/2 + (u(2:Nxb+2,1:Nyb+1)+u(2:Nxb+2,2:Nyb+2))/2)/2
+             vv = ((v(1:Nxb+1,1:Nyb+1)+v(2:Nxb+2,1:Nyb+1))/2 + (v(1:Nxb+1,2:Nyb+2)+v(2:Nxb+2,2:Nyb+2))/2)/2
+             pp = ((p(1:Nxb+1,1:Nyb+1)+p(2:Nxb+2,1:Nyb+1))/2 + (p(1:Nxb+1,2:Nyb+2)+p(2:Nxb+2,2:Nyb+2))/2)/2
+
+             call IO_write(x,y,uu,vv,pp,myid)
+     end if       
+
 
        tstep = tstep +1
 
@@ -206,16 +218,18 @@ subroutine IncompNS_rk3()
 
      uu = ((u(1:Nxb+1,1:Nyb+1)+u(1:Nxb+1,2:Nyb+2))/2 + (u(2:Nxb+2,1:Nyb+1)+u(2:Nxb+2,2:Nyb+2))/2)/2
      vv = ((v(1:Nxb+1,1:Nyb+1)+v(2:Nxb+2,1:Nyb+1))/2 + (v(1:Nxb+1,2:Nyb+2)+v(2:Nxb+2,2:Nyb+2))/2)/2
+     pp = ((p(1:Nxb+1,1:Nyb+1)+p(2:Nxb+2,1:Nyb+1))/2 + (p(1:Nxb+1,2:Nyb+2)+p(2:Nxb+2,2:Nyb+2))/2)/2
+
      !uu = u(2:Nxb+1,2:Nyb+1)
      !vv = v(2:Nxb+1,2:Nyb+1)
 
-     call IO_write(x,y,uu,vv,myid)
+     call IO_write(x,y,uu,vv,pp,myid)
 
 end subroutine IncompNS_rk3
 
 
 !! CONVECTIVE U !!
-subroutine Convective_U(ut,vt,dx,dy,C1)
+subroutine Convective_U(ut,vt,dx_a,dy_b,C1)
 
 #include "Solver.h"
        
@@ -224,8 +238,8 @@ subroutine Convective_U(ut,vt,dx,dy,C1)
       real,dimension(Nxb+2,Nyb+2), intent(in) :: ut
       real,dimension(Nxb+2,Nyb+2), intent(in) :: vt
 
-      real, intent(in) :: dx
-      real, intent(in) :: dy
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dx_a
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dy_b
 
       real, dimension(Nxb,Nyb) :: ue
       real, dimension(Nxb,Nyb) :: uw
@@ -242,12 +256,12 @@ subroutine Convective_U(ut,vt,dx,dy,C1)
       vs = (vt(2:Nxb+1,1:Nyb)+vt(3:Nxb+2,1:Nyb))/2
       vn = (vt(2:Nxb+1,2:Nyb+1)+vt(3:Nxb+2,2:Nyb+1))/2
 
-      C1 = -((ue**2)-(uw**2))/dx - ((un*vn)-(us*vs))/dy
+      C1 = -((ue**2)-(uw**2))/dx_a(2:Nxb+1,1:Nyb) - ((un*vn)-(us*vs))/dy_b(1:Nxb,1:Nyb)
 
 end subroutine Convective_U
 
 !! CONVECTIVE V !!
-subroutine Convective_V(ut,vt,dx,dy,C2)
+subroutine Convective_V(ut,vt,dx_b,dy_a,C2)
 
 #include "Solver.h"
 
@@ -256,8 +270,8 @@ subroutine Convective_V(ut,vt,dx,dy,C2)
       real,dimension(Nxb+2,Nyb+2), intent(in) :: ut
       real,dimension(Nxb+2,Nyb+2), intent(in) :: vt
 
-      real, intent(in) :: dx
-      real, intent(in) :: dy
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dx_b
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dy_a
 
       real, dimension(Nxb,Nyb) :: vn, vs, ve, vw, ue, uw
       real, dimension(Nxb,Nyb), intent(out) :: C2
@@ -269,12 +283,12 @@ subroutine Convective_V(ut,vt,dx,dy,C2)
       ue = (ut(2:Nxb+1,2:Nyb+1)+ut(2:Nxb+1,3:Nyb+2))/2
       uw = (ut(1:Nxb,2:Nyb+1)+ut(1:Nxb,3:Nyb+2))/2
 
-      C2 = -((ue*ve)-(uw*vw))/dx - ((vn**2)-(vs**2))/dy
+      C2 = -((ue*ve)-(uw*vw))/dx_b(1:Nxb,1:Nyb) - ((vn**2)-(vs**2))/dy_a(1:Nxb,2:Nyb+1)
 
 end subroutine Convective_V
 
 !! DIFFUSIVE U !!
-subroutine Diffusive_U(ut,dx,dy,inRe,D1)
+subroutine Diffusive_U(ut,dx_b,dy_a,inRe,D1)
 
 #include "Solver.h"
 
@@ -282,8 +296,8 @@ subroutine Diffusive_U(ut,dx,dy,inRe,D1)
 
       real,dimension(Nxb+2,Nyb+2), intent(in) :: ut
 
-      real, intent(in) :: dx
-      real, intent(in) :: dy
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dx_b
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dy_a
 
       real, intent(in) :: inRe
 
@@ -301,12 +315,16 @@ subroutine Diffusive_U(ut,dx,dy,inRe,D1)
       uN = ut(2:Nxb+1,3:Nyb+2)
       uS = ut(2:Nxb+1,1:Nyb)
 
-      D1 = (inRe/dx)*(((uE-uP)/dx)-((uP-uW)/dx)) + (inRe/dy)*(((uN-uP)/dy)-((uP-uS)/dy))
+      !D1 = (inRe/dx)*(((uE-uP)/dx)-((uP-uW)/dx)) + (inRe/dy)*(((uN-uP)/dy)-((uP-uS)/dy))
+      D1 = (inRe/dx_b(2:Nxb+1,1:Nyb))*((uE-uP)/dx_b(2:Nxb+1,1:Nyb))&
+          -(inRe/dx_b(1:Nxb,1:Nyb))*((uP-uW)/dx_b(1:Nxb,1:Nyb))&
+          +(inRe/dy_a(1:Nxb,2:Nyb+1))*((uN-uP)/dy_a(1:Nxb,2:Nyb+1))&
+          -(inRe/dy_a(1:Nxb,1:Nyb))*((uP-uS)/dy_a(1:Nxb,1:Nyb))
 
 end subroutine Diffusive_U
 
 !! DIFFUSIVE V !!
-subroutine Diffusive_V(vt,dx,dy,inRe,D2)
+subroutine Diffusive_V(vt,dx_a,dy_b,inRe,D2)
 
 #include "Solver.h"
 
@@ -314,8 +332,8 @@ subroutine Diffusive_V(vt,dx,dy,inRe,D2)
 
       real,dimension(Nxb+2,Nyb+2), intent(in) :: vt
 
-      real, intent(in) :: dx
-      real, intent(in) :: dy
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dx_a
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dy_b
 
       real, intent(in) :: inRe
 
@@ -329,7 +347,10 @@ subroutine Diffusive_V(vt,dx,dy,inRe,D2)
       vN = vt(2:Nxb+1,3:Nyb+2)
       vS = vt(2:Nxb+1,1:Nyb)
 
-      D2 = (inRe/dx)*(((vE-vP)/dx)-((vP-vW)/dx)) + (inRe/dy)*(((vN-vP)/dy)-((vP-vS)/dy))
-
+      !D2 = (inRe/dx)*(((vE-vP)/dx)-((vP-vW)/dx)) + (inRe/dy)*(((vN-vP)/dy)-((vP-vS)/dy))
+      D2 = (inRe/dx_a(2:Nxb+1,1:Nyb))*((vE-vP)/dx_a(2:Nxb+1,1:Nyb))&
+          -(inRe/dx_a(1:Nxb,1:Nyb))*((vP-vW)/dx_a(1:Nxb,1:Nyb))&
+          +(inRe/dy_b(1:Nxb,2:Nyb+1))*((vN-vP)/dy_b(1:Nxb,2:Nyb+1))&
+          -(inRe/dy_b(1:Nxb,1:Nyb))*((vP-vS)/dy_b(1:Nxb,1:Nyb))
 end subroutine Diffusive_V
 

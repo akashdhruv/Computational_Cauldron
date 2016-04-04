@@ -1,4 +1,4 @@
-#define GRID 1  
+#define GRID 1 
 
 #if GRID == 1
 #define SOLVER_GRID_UG
@@ -27,8 +27,8 @@
 
 #define MAX_STRING_LENGTH 80
 
-#define Nxb 31
-#define Nyb 31
+#define Nxb 15
+#define Nyb 15
 
 #define D_xmin -0.5
 #define D_ymin -0.5
@@ -36,7 +36,7 @@
 #define D_xmax 0.5
 #define D_ymax 0.5
 
-#define HK 2
+#define HK 3
 #define HD 2
  
 #define MaxIt 600

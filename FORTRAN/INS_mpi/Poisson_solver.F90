@@ -30,29 +30,37 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
      p_res1 = 0     
      p_old = p
 
-#ifdef POISSON_SOLVER_JACOBI
+!#ifdef POISSON_SOLVER_JACOBI
 
-     p(2:Nxb+1,2:Nyb+1)= (((p_old(2:Nxb+1,3:Nyb+2)+p_old(2:Nxb+1,1:Nyb))/(dy*dy))& 
-                         +((p_old(3:Nxb+2,2:Nyb+1)+p_old(1:Nxb,2:Nyb+1))/(dx*dx))&
-                         -((1/(dy*dt))*(vt(2:Nxb+1,2:Nyb+1)-vt(2:Nxb+1,1:Nyb)))&
-                         -((1/(dx*dt))*(ut(2:Nxb+1,2:Nyb+1)-ut(1:Nxb,2:Nyb+1))))&
-                         *(1/((2/(dx*dx))+(2/(dy*dy))))
+!     p(2:Nxb+1,2:Nyb+1)= (((p_old(2:Nxb+1,3:Nyb+2)+p_old(2:Nxb+1,1:Nyb))/(dy*dy))& 
+!                         +((p_old(3:Nxb+2,2:Nyb+1)+p_old(1:Nxb,2:Nyb+1))/(dx*dx))&
+!                         -((1/(dy*dt))*(vt(2:Nxb+1,2:Nyb+1)-vt(2:Nxb+1,1:Nyb)))&
+!                         -((1/(dx*dt))*(ut(2:Nxb+1,2:Nyb+1)-ut(1:Nxb,2:Nyb+1))))&
+!                         *(1/((2/(dx*dx))+(2/(dy*dy))))
 
-#else
+!#else
 
      do j=2,Nyb+1
         do i=2,Nxb+1
               
-            p(i,j)=(((p_old(i,j+1)+p(i,j-1))/(dy*dy))&
-                   +((p_old(i+1,j)+p(i-1,j))/(dx*dx))&
-                   -(1/(dy*dt))*(vt(i,j)-vt(i,j-1))&
-                   -(1/(dx*dt))*(ut(i,j)-ut(i-1,j)))&
-                   *(1/((2/(dx*dx))+(2/(dy*dy))))*omega + (1-omega)*p(i,j)
+!            p(i,j)=(((p_old(i,j+1)+p(i,j-1))/(dy*dy))&
+!                   +((p_old(i+1,j)+p(i-1,j))/(dx*dx))&
+!                   -(1/(dy*dt))*(vt(i,j)-vt(i,j-1))&
+!                   -(1/(dx*dt))*(ut(i,j)-ut(i-1,j)))&
+!                   *(1/((2/(dx*dx))+(2/(dy*dy))))*omega + (1-omega)*p(i,j)
 
+
+           p(i,j)=((p_old(i,j+1)/(dy_c(i,j)**2))+(p(i,j-1)/(dy_c(i,j)**2))&
+                  +(p_old(i+1,j)/(dx_c(i,j)**2))+(p(i-1,j)/(dx_c(i,j)**2))&
+                  -((1/(dy_b(i,j)*dt))*(vt(i,j)-vt(i,j-1)))&
+                  -((1/(dx_b(i,j)*dt))*(ut(i,j)-ut(i-1,j))))&
+                  *(1/((1/(dx_c(i,j)**2))+(1/(dy_c(i,j)**2))+&
+                   (1/(dx_c(i,j)**2))+(1/(dy_c(i,j)**2))))*omega + (1-omega)*p(i,j)
+                  
         end do
      end do
 
-#endif
+!#endif
 
      ! Pressure BC
 
