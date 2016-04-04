@@ -38,7 +38,9 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 !                         -((1/(dx*dt))*(ut(2:Nxb+1,2:Nyb+1)-ut(1:Nxb,2:Nyb+1))))&
 !                         *(1/((2/(dx*dx))+(2/(dy*dy))))
 
-!#else
+!#endif
+
+#ifdef POISSON_SOLVER_GSOR
 
      do j=2,Nyb+1
         do i=2,Nxb+1
@@ -60,7 +62,10 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
         end do
      end do
 
-!#endif
+#endif
+
+#ifdef POISSON_SOLVER_FFT
+#endif
 
      ! Pressure BC
 

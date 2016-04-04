@@ -1,4 +1,4 @@
-#define GRID 1 
+#define GRID 0 
 
 #if GRID == 1
 #define SOLVER_GRID_UG
@@ -23,6 +23,10 @@
 #if SOLVER == 3
 #define POISSON_SOLVER_GSOR
 #define omega 1.4
+#endif
+
+#if SOLVER == 4
+#define POISSON_SOLVER_FFT
 #endif
 
 #define MAX_STRING_LENGTH 80
