@@ -19,11 +19,11 @@ X=X';
 Y=Y';
 
 T = zeros(Nx+2,Ny+2);
-T = T+(20+273);
+T = T+(40+273);
 
 t = 300.0;
 
-alpha = 10^-4;
+alpha = 8.1*10^-5;
 k = 205.0;
 g = 0;
 
@@ -35,11 +35,11 @@ tstep = 0;
 
 % Boundary Condition Parameters
 
-q1 = 0;
-q2 = 0;
+q1 = 10^6;
+q2 = 5*(10^5);
 
-T1 = 100+273;
-T2 = 100+273;
+T1 = 10+273;
+T2 = 10+273;
 
 while (tstep < nt)
     
