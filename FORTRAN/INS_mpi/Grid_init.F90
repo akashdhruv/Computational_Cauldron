@@ -82,8 +82,8 @@ dy_n(1,:) = dy_n(2,:)
 dx_n(Nxb+2,:) = dx_n(Nxb+1,:)
 dy_n(:,Nyb+2) = dy_n(:,Nyb+1)
 
-dx_n(:,Nyb+2)=dx_n(:,Nyb+1)
-dy_n(Nxb+2,:)=dy_n(Nxb+1,:)
+dx_n(:,Nyb+2) = dx_n(:,Nyb+1)
+dy_n(Nxb+2,:) = dy_n(Nxb+1,:)
 
 dx_a = 0.5*(dx_n(1:Nxb+1,1:Nyb+1)+dx_n(2:Nxb+2,1:Nyb+1)) ! Use with Convective_U and Diffusive_V
 dy_a = 0.5*(dy_n(1:Nxb+1,1:Nyb+1)+dy_n(1:Nxb+1,2:Nyb+2)) ! Use with Convective_V and Diffusive_U
@@ -93,8 +93,6 @@ dy_b = dy_n(1:Nxb+1,2:Nyb+2) ! Use with Convective_U and Diffusive_V
 
 dx_c = 0.5*(dx_n(1:Nxb+1,1:Nyb+1)+dx_n(2:Nxb+2,1:Nyb+1)) ! Use with Pressure
 dy_c = 0.5*(dy_n(1:Nxb+1,1:Nyb+1)+dy_n(1:Nxb+1,2:Nyb+2)) ! Use with Pressure
-
-!print *,dx_c
 
 dt = 0.2*min(minval(dx_n),minval(dy_n))
 !dt=0.05*min(dx,dy)

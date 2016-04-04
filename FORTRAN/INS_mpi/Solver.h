@@ -1,4 +1,4 @@
-#define GRID 1 
+#define GRID 0 
 
 #if GRID == 1
 #define SOLVER_GRID_UG
@@ -36,7 +36,7 @@
 #define D_xmax 0.5
 #define D_ymax 0.5
 
-#define HK 3
+#define HK 2
 #define HD 2
  
 #define MaxIt 600

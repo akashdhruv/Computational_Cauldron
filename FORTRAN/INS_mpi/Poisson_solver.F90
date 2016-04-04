@@ -101,7 +101,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
      p_res = sqrt(p_res1/((Nxb+2)*(Nyb+2)*(HK**HD)))
 
-     if( (p_res .lt. 0.000001 ) .and. (p_res .ne. 0) ) exit
+     if( (p_res .lt. 0.001 ) .and. (p_res .ne. 0) ) exit
 
   end do
 
