@@ -1,4 +1,4 @@
-#define GRID 1 
+#define GRID 0 
 
 #if GRID == 1
 #define SOLVER_GRID_UG
@@ -9,7 +9,7 @@
 #endif
 
 
-#define SOLVER 3
+#define SOLVER 1
 
 #if SOLVER == 1
 #define POISSON_SOLVER_JACOBI
@@ -21,7 +21,7 @@
 
 #if SOLVER == 3
 #define POISSON_SOLVER_GSOR
-#define omega 1.4
+#define omega 1.1
 #endif
 
 #if SOLVER == 4

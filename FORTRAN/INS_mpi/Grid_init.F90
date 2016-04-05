@@ -48,12 +48,12 @@ subroutine Grid_init()
            x(:,i)=D_xmin+mod(myid,HK)*Lx+Lx*(cos((pi/(2*Nxb))*(/(I,I=Nxb,0,-1)/)))
        
         else
-           x(:,i)=D_xmin+mod(myid,HK)*Lx+dx*(/(I,I=0,Nxb)/)
+           !x(:,i)=D_xmin+mod(myid,HK)*Lx+dx*(/(I,I=0,Nxb)/)
           
-           !x(1:Nxb/2+1,i)=D_xmin+mod(myid,HK)*Lx+Lx*(cos((pi/(Nxb))*(/(I,I=Nxb/2,0,-1)/)))/2
+           x(1:Nxb/2+1,i)=D_xmin+mod(myid,HK)*Lx+Lx*(cos((pi/(Nxb))*(/(I,I=Nxb/2,0,-1)/)))/2
           
-           !x(Nxb/2+2:Nxb+1,i)=D_xmin+mod(myid,HK)*Lx+Lx/2+&
-           !                   Lx*(1-cos((pi/(Nxb))*(/(I,I=1,Nxb/2)/)))/2
+           x(Nxb/2+2:Nxb+1,i)=D_xmin+mod(myid,HK)*Lx+Lx/2+&
+                              Lx*(1-cos((pi/(Nxb))*(/(I,I=1,Nxb/2)/)))/2
 
         end if
 
@@ -68,12 +68,12 @@ subroutine Grid_init()
             y(i,:)=D_ymin+(myid/HK)*Ly+Ly*(cos((pi/(2*Nyb))*(/(I,I=Nyb,0,-1)/)))
 
         else
-           y(i,:)=D_ymin+(myid/HK)*Ly+dy*(/(I,I=0,Nyb)/)
+          !y(i,:)=D_ymin+(myid/HK)*Ly+dy*(/(I,I=0,Nyb)/)
           
-          !y(i,1:Nyb/2+1)=D_ymin+(myid/HK)*Ly+Ly*(cos((pi/(Nyb))*(/(I,I=Nyb/2,0,-1)/)))/2
+          y(i,1:Nyb/2+1)=D_ymin+(myid/HK)*Ly+Ly*(cos((pi/(Nyb))*(/(I,I=Nyb/2,0,-1)/)))/2
           
-          !y(i,Nyb/2+2:Nyb+1)=D_ymin+(myid/HK)*Ly+Ly/2+&
-          !                     Ly*(1-cos((pi/(Nyb))*(/(I,I=1,Nyb/2)/)))/2
+          y(i,Nyb/2+2:Nyb+1)=D_ymin+(myid/HK)*Ly+Ly/2+&
+                               Ly*(1-cos((pi/(Nyb))*(/(I,I=1,Nyb/2)/)))/2
         end if
 
      enddo
@@ -102,6 +102,6 @@ dy_centers = 0.5*(dy_nodes(1:Nxb+1,1:Nyb+1)+dy_nodes(1:Nxb+1,2:Nyb+2))
 dt = 0.05*min(minval(dx_nodes),minval(dy_nodes))
 
 nt = t/dt
-!nt = 1
+!nt = 2
 
 end subroutine Grid_init
