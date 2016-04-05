@@ -49,9 +49,11 @@ subroutine Grid_init()
        
         else
            !x(:,i)=D_xmin+mod(myid,HK)*Lx+dx*(/(I,I=0,Nxb)/)
+          
            x(1:Nxb/2+1,i)=D_xmin+mod(myid,HK)*Lx+Lx*(cos((pi/(Nxb))*(/(I,I=Nxb/2,0,-1)/)))/2
-           x(Nxb/2+2:Nxb+1,i)=D_xmin+mod(myid,HK)*Lx+Lx/2+&
-                              Lx*(1-cos((pi/(Nxb))*(/(I,I=1,Nxb/2)/)))/2
+          
+           !x(Nxb/2+2:Nxb+1,i)=D_xmin+mod(myid,HK)*Lx+Lx/2+&
+           !                   Lx*(1-cos((pi/(Nxb))*(/(I,I=1,Nxb/2)/)))/2
 
         end if
 
@@ -66,10 +68,12 @@ subroutine Grid_init()
             y(i,:)=D_ymin+(myid/HK)*Ly+Ly*(cos((pi/(2*Nyb))*(/(I,I=Nyb,0,-1)/)))
 
         else
-           !y(i,:)=D_ymin+(myid/HK)*Ly+dy*(/(I,I=0,Nyb)/)
-           y(i,1:Nyb/2+1)=D_ymin+(myid/HK)*Ly+Ly*(cos((pi/(Nyb))*(/(I,I=Nyb/2,0,-1)/)))/2
-           y(i,Nyb/2+2:Nyb+1)=D_ymin+(myid/HK)*Ly+Ly/2+&
-                              Ly*(1-cos((pi/(Nyb))*(/(I,I=1,Nyb/2)/)))/2
+           y(i,:)=D_ymin+(myid/HK)*Ly+dy*(/(I,I=0,Nyb)/)
+          
+          !y(i,1:Nyb/2+1)=D_ymin+(myid/HK)*Ly+Ly*(cos((pi/(Nyb))*(/(I,I=Nyb/2,0,-1)/)))/2
+          
+          !y(i,Nyb/2+2:Nyb+1)=D_ymin+(myid/HK)*Ly+Ly/2+&
+          !                     Ly*(1-cos((pi/(Nyb))*(/(I,I=1,Nyb/2)/)))/2
         end if
 
      enddo
@@ -77,34 +81,27 @@ subroutine Grid_init()
 #endif
 
 
-dx_n(2:Nxb+1,1:Nyb+1) = x(2:Nxb+1,:)-x(1:Nxb,:)
-dy_n(1:Nxb+1,2:Nyb+1) = y(:,2:Nyb+1)-y(:,1:Nyb)
+dx_nodes(2:Nxb+1,1:Nyb+1) = x(2:Nxb+1,:)-x(1:Nxb,:)
+dy_nodes(1:Nxb+1,2:Nyb+1) = y(:,2:Nyb+1)-y(:,1:Nyb)
 
-dx_n(1,:) = dx_n(2,:)
-dy_n(:,1) = dy_n(:,2)
+dx_nodes(1,:) = dx_nodes(2,:)
+dy_nodes(:,1) = dy_nodes(:,2)
 
-dx_n(:,1) = dx_n(:,2)
-dy_n(1,:) = dy_n(2,:)
+dx_nodes(:,1) = dx_nodes(:,2)
+dy_nodes(1,:) = dy_nodes(2,:)
 
-dx_n(Nxb+2,:) = dx_n(Nxb+1,:)
-dy_n(:,Nyb+2) = dy_n(:,Nyb+1)
+dx_nodes(Nxb+2,:) = dx_nodes(Nxb+1,:)
+dy_nodes(:,Nyb+2) = dy_nodes(:,Nyb+1)
 
-dx_n(:,Nyb+2) = dx_n(:,Nyb+1)
-dy_n(Nxb+2,:) = dy_n(Nxb+1,:)
+dx_nodes(:,Nyb+2) = dx_nodes(:,Nyb+1)
+dy_nodes(Nxb+2,:) = dy_nodes(Nxb+1,:)
 
-dx_a = 0.5*(dx_n(1:Nxb+1,1:Nyb+1)+dx_n(2:Nxb+2,1:Nyb+1)) ! Use with Convective_U and Diffusive_V
-dy_a = 0.5*(dy_n(1:Nxb+1,1:Nyb+1)+dy_n(1:Nxb+1,2:Nyb+2)) ! Use with Convective_V and Diffusive_U
+dx_centers = 0.5*(dx_nodes(1:Nxb+1,1:Nyb+1)+dx_nodes(2:Nxb+2,1:Nyb+1))
+dy_centers = 0.5*(dy_nodes(1:Nxb+1,1:Nyb+1)+dy_nodes(1:Nxb+1,2:Nyb+2)) 
 
-dx_b = dx_n(2:Nxb+2,1:Nyb+1) ! Use with Convective_V and Diffusive_U
-dy_b = dy_n(1:Nxb+1,2:Nyb+2) ! Use with Convective_U and Diffusive_V
-
-dx_c = 0.5*(dx_n(1:Nxb+1,1:Nyb+1)+dx_n(2:Nxb+2,1:Nyb+1)) ! Use with Pressure
-dy_c = 0.5*(dy_n(1:Nxb+1,1:Nyb+1)+dy_n(1:Nxb+1,2:Nyb+2)) ! Use with Pressure
-
-dt = 0.05*min(minval(dx_n),minval(dy_n))
-!dt=0.05*min(dx,dy)
-!dt = .00000001
+dt = 0.05*min(minval(dx_nodes),minval(dy_nodes))
 
 nt = t/dt
 !nt = 1
+
 end subroutine Grid_init

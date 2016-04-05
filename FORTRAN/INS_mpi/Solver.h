@@ -8,6 +8,7 @@
 
 #endif
 
+
 #define SOLVER 3
 
 #if SOLVER == 1
@@ -29,18 +30,24 @@
 #define POISSON_SOLVER_FFT
 #endif
 
+
 #define MAX_STRING_LENGTH 80
+
 
 #define Nxb 32
 #define Nyb 32
 
+
 #define D_xmin -0.5
 #define D_ymin -0.5
+
 
 #define D_xmax 0.5
 #define D_ymax 0.5
 
+
 #define HK 2
 #define HD 2
  
+
 #define MaxIt 1500

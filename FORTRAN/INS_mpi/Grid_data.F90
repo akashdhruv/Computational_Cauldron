@@ -13,9 +13,9 @@ module Grid_data
        real, save :: dx
        real, save :: dy
 
-       real, save, dimension(Nxb+1,Nyb+1) ::  dx_c, dy_c, dx_b, dy_b, dx_a, dy_a
+       real, save, dimension(Nxb+1,Nyb+1) ::  dx_centers, dy_centers
 
-       real, save, dimension(Nxb+2,Nyb+2) :: dx_n, dy_n 
+       real, save, dimension(Nxb+2,Nyb+2) :: dx_nodes, dy_nodes 
  
        real, save :: inRe
 

@@ -5,7 +5,7 @@ subroutine IncompNS_rk3()
        use IncompNS_data
        use Grid_data
        use MPI_data
-       use MPI_interface, ONLY: MPI_applyBC, MPI_CollectResiduals
+       use MPI_interface, ONLY: MPI_applyBC, MPI_CollectResiduals, MPI_physicalBC_vel
 
 #include "Solver.h"
 
@@ -67,8 +67,8 @@ subroutine IncompNS_rk3()
 
        ! Predictor Step
 
-       call Convective_U(u,v,dx_a,dy_b,C1)
-       call Diffusive_U(u,dx_b,dy_a,inRe,D1)
+       call Convective_U(u,v,dx_centers,dy_nodes,C1)
+       call Diffusive_U(u,dx_nodes,dy_centers,inRe,D1)
 
        G1 = C1 + D1
 
@@ -83,8 +83,8 @@ subroutine IncompNS_rk3()
        endif
 
 
-       call Convective_V(u,v,dx_b,dy_a,C2)
-       call Diffusive_V(v,dx_a,dy_b,inRe,D2)
+       call Convective_V(u,v,dx_nodes,dy_centers,C2)
+       call Diffusive_V(v,dx_centers,dy_nodes,inRe,D2)
 
        G2 = C2 + D2
 
@@ -102,87 +102,26 @@ subroutine IncompNS_rk3()
 
        call MPI_applyBC(ut)
        call MPI_applyBC(vt)
-
-       if ( mod(myid,HK) == 0) then
- 
-           vt(1,:)=-vt(2,:)
-           ut(1,:)=0
-      
-       end if
-
-       if ( mod(myid,HK) == HK-1) then
-
-           vt(Nxb+2,:)=-vt(Nxb+1,:)
-           ut(Nxb+1,:)=0
-           ut(Nxb+2,:)=0
-
-       end if
-
-
-       if ( myid/HK == 0) then
-
-           vt(:,1)=0
-           ut(:,1)=-ut(:,2)
-
-       end if
-
-       if ( myid/HK == HK-1) then
-    
-           vt(:,Nyb+2)=0
-           vt(:,Nyb+1)=0
-           ut(:,Nyb+2)=2-ut(:,Nyb+1)
-
-       end if
+       call MPI_physicalBC_vel(ut,vt)
 
        ! Poisson Solver
 
        call Poisson_solver(ut,vt,p_res,p_counter)
 
-       u(2:Nxb+1,2:Nyb+1) = ut(2:Nxb+1,2:Nyb+1) - (dt/dx_a(2:Nxb+1,2:Nyb+1))*(p(3:Nxb+2,2:Nyb+1)-p(2:Nxb+1,2:Nyb+1))
-       v(2:Nxb+1,2:Nyb+1) = vt(2:Nxb+1,2:Nyb+1) - (dt/dy_a(2:Nxb+1,2:Nyb+1))*(p(2:Nxb+1,3:Nyb+2)-p(2:Nxb+1,2:Nyb+1))
+       u(2:Nxb+1,2:Nyb+1) = ut(2:Nxb+1,2:Nyb+1) - (dt/dx_centers(2:Nxb+1,2:Nyb+1))*(p(3:Nxb+2,2:Nyb+1)-p(2:Nxb+1,2:Nyb+1))
+       v(2:Nxb+1,2:Nyb+1) = vt(2:Nxb+1,2:Nyb+1) - (dt/dy_centers(2:Nxb+1,2:Nyb+1))*(p(2:Nxb+1,3:Nyb+2)-p(2:Nxb+1,2:Nyb+1))
 
        ! Boundary Conditions
 
        call MPI_applyBC(u)
        call MPI_applyBC(v)
-
-       if ( mod(myid,HK) == 0) then
-
-           v(1,:)=-v(2,:)
-           u(1,:)=0
-
-       end if
-
-       if ( mod(myid,HK) == HK-1) then
-
-           v(Nxb+2,:)=-v(Nxb+1,:)
-           u(Nxb+1,:)=0
-           u(Nxb+2,:)=0
-
-       end if
-
-
-       if ( myid/HK == 0) then
-
-           v(:,1)=0
-           u(:,1)=-u(:,2)
-
-       end if
-
-       if ( myid/HK == HK-1) then
-
-           v(:,Nyb+2)=0
-           v(:,Nyb+1)=0
-           u(:,Nyb+2)=2-u(:,Nyb+1)
-
-       end if
+       call MPI_physicalBC_vel(u,v)
 
        do i=1,Nyb+2
           u_res = u_res + sum((u(:,i)-u_old(:,i))**2)
        enddo
 
        call MPI_CollectResiduals(u_res,u_res1)
-  
        u_res = sqrt(u_res1/((HK**HD)*(Nxb+2)*(Nyb+2)))
 
        do i=1,Nyb+1
@@ -190,15 +129,12 @@ subroutine IncompNS_rk3()
        enddo
 
        call MPI_CollectResiduals(v_res,v_res1)
-
        v_res = sqrt(v_res1/((HK**HD)*(Nxb+2)*(Nyb+2)))
 
+
        if (mod(tstep,5) == 0 .and. myid == 0) then       
-
           call IO_display(u_res,v_res,p_res,p_counter,tstep*dt)
-
        end if
-
 
        if( (u_res .lt. 0.0000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.0000001) .and. (v_res .ne. 0) ) exit
 
@@ -209,7 +145,7 @@ subroutine IncompNS_rk3()
              pp = ((p(1:Nxb+1,1:Nyb+1)+p(2:Nxb+2,1:Nyb+1))/2 + (p(1:Nxb+1,2:Nyb+2)+p(2:Nxb+2,2:Nyb+2))/2)/2
 
              call IO_write(x,y,uu,vv,pp,myid)
-     end if       
+       end if       
 
 
        tstep = tstep +1
@@ -220,16 +156,13 @@ subroutine IncompNS_rk3()
      vv = ((v(1:Nxb+1,1:Nyb+1)+v(2:Nxb+2,1:Nyb+1))/2 + (v(1:Nxb+1,2:Nyb+2)+v(2:Nxb+2,2:Nyb+2))/2)/2
      pp = ((p(1:Nxb+1,1:Nyb+1)+p(2:Nxb+2,1:Nyb+1))/2 + (p(1:Nxb+1,2:Nyb+2)+p(2:Nxb+2,2:Nyb+2))/2)/2
 
-     !uu = u(2:Nxb+1,2:Nyb+1)
-     !vv = v(2:Nxb+1,2:Nyb+1)
-
      call IO_write(x,y,uu,vv,pp,myid)
 
 end subroutine IncompNS_rk3
 
 
 !! CONVECTIVE U !!
-subroutine Convective_U(ut,vt,dx_a,dy_b,C1)
+subroutine Convective_U(ut,vt,dx_centers,dy_nodes,C1)
 
 #include "Solver.h"
        
@@ -238,8 +171,8 @@ subroutine Convective_U(ut,vt,dx_a,dy_b,C1)
       real,dimension(Nxb+2,Nyb+2), intent(in) :: ut
       real,dimension(Nxb+2,Nyb+2), intent(in) :: vt
 
-      real, dimension(Nxb+1,Nyb+1),intent(in) :: dx_a
-      real, dimension(Nxb+1,Nyb+1),intent(in) :: dy_b
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dx_centers
+      real, dimension(Nxb+2,Nyb+2),intent(in) :: dy_nodes
 
       real, dimension(Nxb,Nyb) :: ue
       real, dimension(Nxb,Nyb) :: uw
@@ -256,12 +189,12 @@ subroutine Convective_U(ut,vt,dx_a,dy_b,C1)
       vs = (vt(2:Nxb+1,1:Nyb)+vt(3:Nxb+2,1:Nyb))/2
       vn = (vt(2:Nxb+1,2:Nyb+1)+vt(3:Nxb+2,2:Nyb+1))/2
 
-      C1 = -((ue**2)-(uw**2))/dx_a(2:Nxb+1,1:Nyb) - ((un*vn)-(us*vs))/dy_b(1:Nxb,1:Nyb)
+      C1 = -((ue**2)-(uw**2))/dx_centers(2:Nxb+1,2:Nyb+1) - ((un*vn)-(us*vs))/dy_nodes(2:Nxb+1,2:Nyb+1)
 
 end subroutine Convective_U
 
 !! CONVECTIVE V !!
-subroutine Convective_V(ut,vt,dx_b,dy_a,C2)
+subroutine Convective_V(ut,vt,dx_nodes,dy_centers,C2)
 
 #include "Solver.h"
 
@@ -270,8 +203,8 @@ subroutine Convective_V(ut,vt,dx_b,dy_a,C2)
       real,dimension(Nxb+2,Nyb+2), intent(in) :: ut
       real,dimension(Nxb+2,Nyb+2), intent(in) :: vt
 
-      real, dimension(Nxb+1,Nyb+1),intent(in) :: dx_b
-      real, dimension(Nxb+1,Nyb+1),intent(in) :: dy_a
+      real, dimension(Nxb+2,Nyb+2),intent(in) :: dx_nodes
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dy_centers
 
       real, dimension(Nxb,Nyb) :: vn, vs, ve, vw, ue, uw
       real, dimension(Nxb,Nyb), intent(out) :: C2
@@ -283,12 +216,12 @@ subroutine Convective_V(ut,vt,dx_b,dy_a,C2)
       ue = (ut(2:Nxb+1,2:Nyb+1)+ut(2:Nxb+1,3:Nyb+2))/2
       uw = (ut(1:Nxb,2:Nyb+1)+ut(1:Nxb,3:Nyb+2))/2
 
-      C2 = -((ue*ve)-(uw*vw))/dx_b(1:Nxb,1:Nyb) - ((vn**2)-(vs**2))/dy_a(1:Nxb,2:Nyb+1)
+      C2 = -((ue*ve)-(uw*vw))/dx_nodes(2:Nxb+1,2:Nyb+1) - ((vn**2)-(vs**2))/dy_centers(2:Nxb+1,2:Nyb+1)
 
 end subroutine Convective_V
 
 !! DIFFUSIVE U !!
-subroutine Diffusive_U(ut,dx_b,dy_a,inRe,D1)
+subroutine Diffusive_U(ut,dx_nodes,dy_centers,inRe,D1)
 
 #include "Solver.h"
 
@@ -296,8 +229,8 @@ subroutine Diffusive_U(ut,dx_b,dy_a,inRe,D1)
 
       real,dimension(Nxb+2,Nyb+2), intent(in) :: ut
 
-      real, dimension(Nxb+1,Nyb+1),intent(in) :: dx_b
-      real, dimension(Nxb+1,Nyb+1),intent(in) :: dy_a
+      real, dimension(Nxb+2,Nyb+2),intent(in) :: dx_nodes
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dy_centers
 
       real, intent(in) :: inRe
 
@@ -316,15 +249,15 @@ subroutine Diffusive_U(ut,dx_b,dy_a,inRe,D1)
       uS = ut(2:Nxb+1,1:Nyb)
 
       !D1 = (inRe/dx)*(((uE-uP)/dx)-((uP-uW)/dx)) + (inRe/dy)*(((uN-uP)/dy)-((uP-uS)/dy))
-      D1 = (inRe/dx_b(2:Nxb+1,1:Nyb))*((uE-uP)/dx_b(2:Nxb+1,1:Nyb))&
-          -(inRe/dx_b(2:Nxb+1,1:Nyb))*((uP-uW)/dx_b(1:Nxb,1:Nyb))&
-          +(inRe/dy_a(1:Nxb,2:Nyb+1))*((uN-uP)/dy_a(1:Nxb,2:Nyb+1))&
-          -(inRe/dy_a(1:Nxb,2:Nyb+1))*((uP-uS)/dy_a(1:Nxb,1:Nyb))
+      D1 = (inRe/dx_nodes(3:Nxb+2,2:Nyb+1))*((uE-uP)/dx_nodes(3:Nxb+2,2:Nyb+1))&
+          -(inRe/dx_nodes(3:Nxb+2,2:Nyb+1))*((uP-uW)/dx_nodes(2:Nxb+1,2:Nyb+1))&
+          +(inRe/dy_centers(1:Nxb,2:Nyb+1))*((uN-uP)/dy_centers(1:Nxb,2:Nyb+1))&
+          -(inRe/dy_centers(1:Nxb,2:Nyb+1))*((uP-uS)/dy_centers(1:Nxb,1:Nyb))
 
 end subroutine Diffusive_U
 
 !! DIFFUSIVE V !!
-subroutine Diffusive_V(vt,dx_a,dy_b,inRe,D2)
+subroutine Diffusive_V(vt,dx_centers,dy_nodes,inRe,D2)
 
 #include "Solver.h"
 
@@ -332,8 +265,8 @@ subroutine Diffusive_V(vt,dx_a,dy_b,inRe,D2)
 
       real,dimension(Nxb+2,Nyb+2), intent(in) :: vt
 
-      real, dimension(Nxb+1,Nyb+1),intent(in) :: dx_a
-      real, dimension(Nxb+1,Nyb+1),intent(in) :: dy_b
+      real, dimension(Nxb+1,Nyb+1),intent(in) :: dx_centers
+      real, dimension(Nxb+2,Nyb+2),intent(in) :: dy_nodes
 
       real, intent(in) :: inRe
 
@@ -348,9 +281,10 @@ subroutine Diffusive_V(vt,dx_a,dy_b,inRe,D2)
       vS = vt(2:Nxb+1,1:Nyb)
 
       !D2 = (inRe/dx)*(((vE-vP)/dx)-((vP-vW)/dx)) + (inRe/dy)*(((vN-vP)/dy)-((vP-vS)/dy))
-      D2 = (inRe/dx_a(2:Nxb+1,1:Nyb))*((vE-vP)/dx_a(2:Nxb+1,1:Nyb))&
-          -(inRe/dx_a(2:Nxb+1,1:Nyb))*((vP-vW)/dx_a(1:Nxb,1:Nyb))&
-          +(inRe/dy_b(1:Nxb,2:Nyb+1))*((vN-vP)/dy_b(1:Nxb,2:Nyb+1))&
-          -(inRe/dy_b(1:Nxb,2:Nyb+1))*((vP-vS)/dy_b(1:Nxb,1:Nyb))
+      D2 = (inRe/dx_centers(2:Nxb+1,1:Nyb))*((vE-vP)/dx_centers(2:Nxb+1,1:Nyb))&
+          -(inRe/dx_centers(2:Nxb+1,1:Nyb))*((vP-vW)/dx_centers(1:Nxb,1:Nyb))&
+          +(inRe/dy_nodes(2:Nxb+1,3:Nyb+2))*((vN-vP)/dy_nodes(2:Nxb+1,3:Nyb+2))&
+          -(inRe/dy_nodes(2:Nxb+1,3:Nyb+2))*((vP-vS)/dy_nodes(2:Nxb+1,2:Nyb+1))
+
 end subroutine Diffusive_V
 

@@ -3,7 +3,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
   use IncompNS_data
   use Grid_data 
   use MPI_data
-  use MPI_interface, ONLY: MPI_applyBC, MPI_CollectResiduals
+  use MPI_interface, ONLY: MPI_applyBC, MPI_CollectResiduals, MPI_physicalBC_pres
 
 #include "Solver.h"
                 
@@ -44,20 +44,13 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
      do j=2,Nyb+1
         do i=2,Nxb+1
-              
-!            p(i,j)=(((p_old(i,j+1)+p(i,j-1))/(dy*dy))&
-!                   +((p_old(i+1,j)+p(i-1,j))/(dx*dx))&
-!                   -(1/(dy*dt))*(vt(i,j)-vt(i,j-1))&
-!                   -(1/(dx*dt))*(ut(i,j)-ut(i-1,j)))&
-!                   *(1/((2/(dx*dx))+(2/(dy*dy))))*omega + (1-omega)*p(i,j)
 
-
-           p(i,j)=((p_old(i,j+1)/(dy_c(i,j)*dy_b(i-1,j-1)))+(p(i,j-1)/(dy_b(i-1,j-1)*dy_c(i-1,j-1)))&
-                  +(p_old(i+1,j)/(dx_c(i,j)*dx_b(i-1,j-1)))+(p(i-1,j)/(dx_b(i-1,j-1)*dx_c(i-1,j-1)))&
-                  -((1/(dy_b(i-1,j-1)*dt))*(vt(i,j)-vt(i,j-1)))&
-                  -((1/(dx_b(i-1,j-1)*dt))*(ut(i,j)-ut(i-1,j))))&
-                  *(1/((1/(dx_b(i-1,j-1)*dx_c(i-1,j-1)))+(1/(dy_b(i-1,j-1)*dy_c(i-1,j-1)))+&
-                   (1/(dx_c(i,j)*dx_b(i-1,j-1)))+(1/(dy_c(i,j)*dy_b(i-1,j-1)))))*omega + (1-omega)*p(i,j)
+           p(i,j)=((p_old(i,j+1)/(dy_centers(i,j)*dy_nodes(i,j)))+(p(i,j-1)/(dy_nodes(i,j)*dy_centers(i-1,j-1)))&
+                  +(p_old(i+1,j)/(dx_centers(i,j)*dx_nodes(i,j)))+(p(i-1,j)/(dx_nodes(i,j)*dx_centers(i-1,j-1)))&
+                  -((1/(dy_nodes(i,j)*dt))*(vt(i,j)-vt(i,j-1)))&
+                  -((1/(dx_nodes(i,j)*dt))*(ut(i,j)-ut(i-1,j))))&
+                  *(1/((1/(dx_nodes(i,j)*dx_centers(i-1,j-1)))+(1/(dy_nodes(i,j)*dy_centers(i-1,j-1)))+&
+                   (1/(dx_centers(i,j)*dx_nodes(i,j)))+(1/(dy_centers(i,j)*dy_nodes(i,j)))))*omega + (1-omega)*p(i,j)
                   
         end do
      end do
@@ -70,31 +63,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
      ! Pressure BC
 
      call MPI_applyBC(p)
-
-     if ( mod(myid,HK) == 0) then
-
-           p(1,:)=p(2,:)
-
-     end if
-
-     if ( mod(myid,HK) == HK-1) then
-
-           p(Nxb+2,:)=p(Nxb+1,:)
-
-     end if
-
-
-     if ( myid/HK == 0) then
-
-           p(:,1)=p(:,2)
-
-     end if
-
-     if ( myid/HK == HK-1) then
-
-           p(:,Nyb+2)=p(:,Nyb+1)
-
-     end if
+     call MPI_physicalBC_pres(p)
 
      p_counter = p_counter + 1
 

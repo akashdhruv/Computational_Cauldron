@@ -1,8 +1,8 @@
 FF=gfortran
 MPIFF=mpif90
 
-Solver : Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o MPIsolver_init.o MPIsolver_finalize.o MPI_applyBC.o MPI_CollectResiduals.o
-				$(MPIFF) -o Solver Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o MPIsolver_init.o MPIsolver_finalize.o MPI_data.o MPI_applyBC.o MPI_CollectResiduals.o
+Solver : Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o MPIsolver_init.o MPIsolver_finalize.o MPI_applyBC.o MPI_CollectResiduals.o MPI_physicalBC_vel.o MPI_physicalBC_pres.o
+				$(MPIFF) -o Solver Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o MPIsolver_init.o MPIsolver_finalize.o MPI_data.o MPI_applyBC.o MPI_CollectResiduals.o MPI_physicalBC_vel.o MPI_physicalBC_pres.o
 
 Grid_interface.o Grid_interface.mod: Grid_interface.F90
 				$(FF) -c Grid_interface.F90
@@ -58,6 +58,12 @@ MPI_applyBC.o: MPI_applyBC.F90 Solver.F90 MPI_data.mod Solver.h
 
 MPI_CollectResiduals.o: MPI_CollectResiduals.F90 MPI_data.mod
 				$(MPIFF) -c MPI_CollectResiduals.F90
+
+MPI_physicalBC_vel.o: MPI_physicalBC_vel.F90 MPI_data.mod
+				$(MPIFF) -c MPI_physicalBC_vel.F90
+
+MPI_physicalBC_pres.o: MPI_physicalBC_pres.F90 MPI_data.mod
+				$(MPIFF) -c MPI_physicalBC_pres.F90
 
 Solver.o : Solver.F90 Grid_interface.mod IO_interface.mod IncompNS_interface.mod MPI_interface.mod
 				$(FF) -c Solver.F90

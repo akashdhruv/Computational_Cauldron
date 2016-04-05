@@ -30,4 +30,18 @@ module MPI_interface
        end subroutine MPI_CollectResiduals
     end interface
 
+    interface 
+        subroutine MPI_physicalBC_vel(u_ex,v_ex)
+        implicit none
+        real, dimension(Nxb+2,Nyb+2), intent(inout) :: u_ex, v_ex
+        end subroutine MPI_physicalBC_vel
+    end interface
+
+    interface
+        subroutine MPI_physicalBC_pres(p_ex)
+        implicit none
+        real, dimension(Nxb+2,Nyb+2), intent(inout) :: p_ex
+        end subroutine MPI_physicalBC_pres
+    end interface
+
 end module MPI_interface
