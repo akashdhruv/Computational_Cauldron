@@ -9,7 +9,7 @@
 #endif
 
 
-#define SOLVER 1
+#define SOLVER 3
 
 #if SOLVER == 1
 #define POISSON_SOLVER_JACOBI

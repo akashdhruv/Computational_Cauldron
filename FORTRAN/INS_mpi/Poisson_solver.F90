@@ -42,8 +42,8 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
                          -((1/(dx_nodes(2:Nxb+1,2:Nyb+1)*dt))*(ut(2:Nxb+1,2:Nyb+1)-ut(1:Nxb,2:Nyb+1))))&
                          *(1/((1/(dx_nodes(2:Nxb+1,2:Nyb+1)*dx_centers(1:Nxb,1:Nyb)))&
                          +(1/(dy_nodes(2:Nxb+1,2:Nyb+1)*dy_centers(1:Nxb,1:Nyb)))&
-                         +(1/(dx_centers(2:Nxb+1,2:Nyb+1)*dx_nodes(2:Nxb+1,2:Nyb+1)))&
-                         +(1/(dy_centers(2:Nxb+1,2:Nyb+1)*dy_nodes(2:Nxb+1,2:Nyb+1)))))
+                         +(1/(dx_nodes(2:Nxb+1,2:Nyb+1)*dx_centers(2:Nxb+1,2:Nyb+1)))&
+                         +(1/(dy_nodes(2:Nxb+1,2:Nyb+1)*dy_centers(2:Nxb+1,2:Nyb+1)))))
 
 #endif
 

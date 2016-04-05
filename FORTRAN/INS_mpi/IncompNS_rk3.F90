@@ -249,10 +249,10 @@ subroutine Diffusive_U(ut,dx_nodes,dy_centers,inRe,D1)
       uS = ut(2:Nxb+1,1:Nyb)
 
       !D1 = (inRe/dx)*(((uE-uP)/dx)-((uP-uW)/dx)) + (inRe/dy)*(((uN-uP)/dy)-((uP-uS)/dy))
-      D1 = (inRe/dx_nodes(3:Nxb+2,2:Nyb+1))*((uE-uP)/dx_nodes(3:Nxb+2,2:Nyb+1))&
-          -(inRe/dx_nodes(3:Nxb+2,2:Nyb+1))*((uP-uW)/dx_nodes(2:Nxb+1,2:Nyb+1))&
-          +(inRe/dy_centers(1:Nxb,2:Nyb+1))*((uN-uP)/dy_centers(1:Nxb,2:Nyb+1))&
-          -(inRe/dy_centers(1:Nxb,2:Nyb+1))*((uP-uS)/dy_centers(1:Nxb,1:Nyb))
+      D1 = (inRe/dx_nodes(2:Nxb+1,2:Nyb+1))*((uE-uP)/dx_nodes(3:Nxb+2,2:Nyb+1))&
+          -(inRe/dx_nodes(2:Nxb+1,2:Nyb+1))*((uP-uW)/dx_nodes(2:Nxb+1,2:Nyb+1))&
+          +(inRe/dy_centers(1:Nxb,1:Nyb))*((uN-uP)/dy_centers(1:Nxb,2:Nyb+1))&
+          -(inRe/dy_centers(1:Nxb,1:Nyb))*((uP-uS)/dy_centers(1:Nxb,1:Nyb))
 
 end subroutine Diffusive_U
 
@@ -281,10 +281,10 @@ subroutine Diffusive_V(vt,dx_centers,dy_nodes,inRe,D2)
       vS = vt(2:Nxb+1,1:Nyb)
 
       !D2 = (inRe/dx)*(((vE-vP)/dx)-((vP-vW)/dx)) + (inRe/dy)*(((vN-vP)/dy)-((vP-vS)/dy))
-      D2 = (inRe/dx_centers(2:Nxb+1,1:Nyb))*((vE-vP)/dx_centers(2:Nxb+1,1:Nyb))&
-          -(inRe/dx_centers(2:Nxb+1,1:Nyb))*((vP-vW)/dx_centers(1:Nxb,1:Nyb))&
-          +(inRe/dy_nodes(2:Nxb+1,3:Nyb+2))*((vN-vP)/dy_nodes(2:Nxb+1,3:Nyb+2))&
-          -(inRe/dy_nodes(2:Nxb+1,3:Nyb+2))*((vP-vS)/dy_nodes(2:Nxb+1,2:Nyb+1))
+      D2 = (inRe/dx_centers(1:Nxb,1:Nyb))*((vE-vP)/dx_centers(2:Nxb+1,1:Nyb))&
+          -(inRe/dx_centers(1:Nxb,1:Nyb))*((vP-vW)/dx_centers(1:Nxb,1:Nyb))&
+          +(inRe/dy_nodes(2:Nxb+1,2:Nyb+1))*((vN-vP)/dy_nodes(2:Nxb+1,3:Nyb+2))&
+          -(inRe/dy_nodes(2:Nxb+1,2:Nyb+1))*((vP-vS)/dy_nodes(2:Nxb+1,2:Nyb+1))
 
 end subroutine Diffusive_V
 
