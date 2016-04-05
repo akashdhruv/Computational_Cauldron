@@ -30,15 +30,40 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
      p_res1 = 0     
      p_old = p
 
-!#ifdef POISSON_SOLVER_JACOBI
+! Warning - Jacobi not working for Non Uniform Grid. Debugging required
 
-!     p(2:Nxb+1,2:Nyb+1)= (((p_old(2:Nxb+1,3:Nyb+2)+p_old(2:Nxb+1,1:Nyb))/(dy*dy))& 
-!                         +((p_old(3:Nxb+2,2:Nyb+1)+p_old(1:Nxb,2:Nyb+1))/(dx*dx))&
-!                         -((1/(dy*dt))*(vt(2:Nxb+1,2:Nyb+1)-vt(2:Nxb+1,1:Nyb)))&
-!                         -((1/(dx*dt))*(ut(2:Nxb+1,2:Nyb+1)-ut(1:Nxb,2:Nyb+1))))&
-!                         *(1/((2/(dx*dx))+(2/(dy*dy))))
+#ifdef POISSON_SOLVER_JACOBI
 
-!#endif
+     p(2:Nxb+1,2:Nyb+1)= ((p_old(2:Nxb+1,3:Nyb+2)/(dy_centers(2:Nxb+1,2:Nyb+1)*dy_nodes(2:Nxb+1,2:Nyb+1)))&
+                          +(p_old(2:Nxb+1,1:Nyb)/(dy_centers(1:Nxb,1:Nyb)*dy_nodes(2:Nxb+1,2:Nyb+1)))&
+                         +(p_old(3:Nxb+2,2:Nyb+1)/(dx_centers(2:Nxb+1,2:Nyb+1)*dy_nodes(2:Nxb+1,2:Nyb+1)))&
+                          +(p_old(1:Nxb,2:Nyb+1)/(dx_centers(1:Nxb,1:Nyb)*dx_nodes(2:Nxb+1,2:Nyb+1)))&
+                         -((1/(dy_nodes(2:Nxb+1,2:Nyb+1)*dt))*(vt(2:Nxb+1,2:Nyb+1)-vt(2:Nxb+1,1:Nyb)))&
+                         -((1/(dx_nodes(2:Nxb+1,2:Nyb+1)*dt))*(ut(2:Nxb+1,2:Nyb+1)-ut(1:Nxb,2:Nyb+1))))&
+                         *(1/((1/(dx_nodes(2:Nxb+1,2:Nyb+1)*dx_centers(1:Nxb,1:Nyb)))&
+                         +(1/(dy_nodes(2:Nxb+1,2:Nyb+1)*dy_centers(1:Nxb,1:Nyb)))&
+                         +(1/(dx_centers(2:Nxb+1,2:Nyb+1)*dx_nodes(2:Nxb+1,2:Nyb+1)))&
+                         +(1/(dy_centers(2:Nxb+1,2:Nyb+1)*dy_nodes(2:Nxb+1,2:Nyb+1)))))
+
+#endif
+
+#ifdef POISSON_SOLVER_GS
+
+     do j=2,Nyb+1
+        do i=2,Nxb+1
+
+           p(i,j)=((p_old(i,j+1)/(dy_centers(i,j)*dy_nodes(i,j)))+(p(i,j-1)/(dy_nodes(i,j)*dy_centers(i-1,j-1)))&
+                  +(p_old(i+1,j)/(dx_centers(i,j)*dx_nodes(i,j)))+(p(i-1,j)/(dx_nodes(i,j)*dx_centers(i-1,j-1)))&
+                  -((1/(dy_nodes(i,j)*dt))*(vt(i,j)-vt(i,j-1)))&
+                  -((1/(dx_nodes(i,j)*dt))*(ut(i,j)-ut(i-1,j))))&
+                  *(1/((1/(dx_nodes(i,j)*dx_centers(i-1,j-1)))+(1/(dy_nodes(i,j)*dy_centers(i-1,j-1)))+&
+                   (1/(dx_centers(i,j)*dx_nodes(i,j)))+(1/(dy_centers(i,j)*dy_nodes(i,j)))))
+
+        end do
+     end do
+
+
+#endif
 
 #ifdef POISSON_SOLVER_GSOR
 
@@ -58,6 +83,9 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 #endif
 
 #ifdef POISSON_SOLVER_FFT
+
+! FFT Solver 
+
 #endif
 
      ! Pressure BC

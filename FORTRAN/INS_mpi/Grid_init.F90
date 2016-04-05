@@ -48,9 +48,9 @@ subroutine Grid_init()
            x(:,i)=D_xmin+mod(myid,HK)*Lx+Lx*(cos((pi/(2*Nxb))*(/(I,I=Nxb,0,-1)/)))
        
         else
-           !x(:,i)=D_xmin+mod(myid,HK)*Lx+dx*(/(I,I=0,Nxb)/)
+           x(:,i)=D_xmin+mod(myid,HK)*Lx+dx*(/(I,I=0,Nxb)/)
           
-           x(1:Nxb/2+1,i)=D_xmin+mod(myid,HK)*Lx+Lx*(cos((pi/(Nxb))*(/(I,I=Nxb/2,0,-1)/)))/2
+           !x(1:Nxb/2+1,i)=D_xmin+mod(myid,HK)*Lx+Lx*(cos((pi/(Nxb))*(/(I,I=Nxb/2,0,-1)/)))/2
           
            !x(Nxb/2+2:Nxb+1,i)=D_xmin+mod(myid,HK)*Lx+Lx/2+&
            !                   Lx*(1-cos((pi/(Nxb))*(/(I,I=1,Nxb/2)/)))/2
