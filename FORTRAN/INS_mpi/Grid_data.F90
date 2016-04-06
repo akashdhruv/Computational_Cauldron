@@ -27,5 +27,4 @@ module Grid_data
 
        integer(kind=8), save :: nt
 
-
 end module Grid_data 

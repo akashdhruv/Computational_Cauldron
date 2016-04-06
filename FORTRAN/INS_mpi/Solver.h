@@ -1,4 +1,4 @@
-#define GRID 0 
+#define GRID 0
 
 #if GRID == 1
 #define SOLVER_GRID_UG

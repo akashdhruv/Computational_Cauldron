@@ -69,7 +69,7 @@ Solver.o : Solver.F90 Grid_interface.mod IO_interface.mod IncompNS_interface.mod
 				$(FF) -c Solver.F90
 
 clean:
-	rm *.o *.mod *.dat
+	rm *.o *.mod *.dat Solver
 
 clr:
 	rm *.o *.mod
