@@ -1,0 +1,28 @@
+# Makefile Dependencies
+
+# Grid Dependencies
+Grid_data.o Grid_data.mod: Solver.h
+Grid_init.o : Grid_data.mod Solver.h MPI_data.mod
+
+# Input Output Dependencies
+IO_interface.o IO_interface.mod: Solver.h
+IO_display.o: Solver.h
+IO_write.o: Solver.h
+
+# Incompressible Navier Stokes Dependencies 
+IncompNS_data.o IncompNS_data.mod: Solver.h
+IncompNS_init.o: IncompNS_data.mod IncompNS_interface.mod Grid_data.mod Solver.h
+IncompNS_rk3.o: Grid_data.mod IncompNS_data.mod IO_interface.mod Poisson_interface.mod Solver.h MPI_data.mod MPI_interface.mod 
+
+# Poisson Dependencies
+Poisson_interface.o Poisson_interface.mod: Solver.h
+Poisson_solver.o: IncompNS_data.mod Grid_data.mod Solver.h MPI_data.mod MPI_interface.mod
+
+# MPI Dependencies
+MPI_interface.o MPI_interface.mod: Solver.h
+MPIsolver_init.o: MPI_data.mod Solver.h
+MPIsolver_finalize.o: MPI_data.mod Solver.h
+MPI_applyBC.o: MPI_data.mod Solver.h
+MPI_CollectResiduals.o: MPI_data.mod Solver.h
+MPI_physicalBC_vel.o: MPI_data.mod Solver.h
+MPI_physicalBC_pres.o: MPI_data.mod Solver.h

@@ -82,7 +82,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
 #ifdef POISSON_SOLVER_FFT
 
-! FFT Solver 
+! FFT Solver -- Coming soon --
 
 #endif
 

@@ -1,75 +1,27 @@
-FF=gfortran
-MPIFF=mpif90
+FF = mpif90
+FFLAGS = -c
 
-Solver : Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o MPIsolver_init.o MPIsolver_finalize.o MPI_applyBC.o MPI_CollectResiduals.o MPI_physicalBC_vel.o MPI_physicalBC_pres.o
-				$(MPIFF) -o Solver Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o MPIsolver_init.o MPIsolver_finalize.o MPI_data.o MPI_applyBC.o MPI_CollectResiduals.o MPI_physicalBC_vel.o MPI_physicalBC_pres.o
+EXE = Solver
+EXEFLAGS = -o
 
-Grid_interface.o Grid_interface.mod: Grid_interface.F90
-				$(FF) -c Grid_interface.F90
+%.o %.mod: %.F90
+	$(FF) $(FFLAGS) $<
 
-Grid_data.o Grid_data.mod: Grid_data.F90 Solver.h
-				$(FF) -c Grid_data.F90
+Headers += Solver.h
 
-Grid_init.o : Grid_init.F90 Grid_data.mod Solver.h MPI_data.mod
-				$(FF) -c Grid_init.F90
+Modules += Grid_interface.mod Grid_data.mod IO_interface.mod IncompNS_interface.mod IncompNS_data.mod Poisson_interface.mod MPI_interface.mod MPI_data.mod
 
-IO_interface.o IO_interface.mod: IO_interface.F90 Solver.h
-				$(FF) -c IO_interface.F90
+Objects += Grid_data.o Grid_init.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o IO_display.o MPIsolver_init.o MPIsolver_finalize.o \
+          MPI_data.o MPI_applyBC.o MPI_physicalBC_vel.o MPI_physicalBC_pres.o MPI_CollectResiduals.o Solver.o
 
-IO_display.o: IO_display.F90
-				$(FF) -c IO_display.F90
+ALL_OBJS = $(Headers) $(Modules) $(Objects)
 
-IO_write.o: IO_write.F90 Solver.h
-				$(FF) -c IO_write.F90
+REBUILDABLES = $(filter-out $(Headers),$(ALL_OBJS)) $(EXE)
 
-IncompNS_interface.o IncompNS_interface.mod: IncompNS_interface.F90
-				$(FF) -c IncompNS_interface.F90
+$(EXE): $(ALL_OBJS) 
+	$(FF) $(EXEFLAGS) $(EXE) $(Objects)
 
-IncompNS_data.o IncompNS_data.mod: IncompNS_data.F90 Solver.h
-				$(FF) -c IncompNS_data.F90 
-
-IncompNS_init.o: IncompNS_init.F90 IncompNS_data.mod IncompNS_interface.mod Grid_data.mod Solver.h
-				$(FF) -c IncompNS_init.F90
-
-IncompNS_rk3.o: IncompNS_rk3.F90 Grid_data.mod IncompNS_data.mod IO_interface.mod Poisson_interface.mod Solver.h MPI_data.mod MPI_interface.mod
-				$(FF) -c IncompNS_rk3.F90
-
-Poisson_interface.o Poisson_interface.mod: Poisson_interface.F90 Solver.h
-				$(FF) -c Poisson_interface.F90
-
-Poisson_solver.o: Poisson_solver.F90 IncompNS_data.mod Grid_data.mod Solver.h MPI_data.mod MPI_interface.mod MPI_data.mod
-				$(FF) -c Poisson_solver.F90
-
-
-MPI_interface.o MPI_interface.mod: MPI_interface.F90 
-				$(FF) -c MPI_interface.F90
-
-MPI_data.o MPI_data.mod: MPI_data.F90
-				$(MPIFF) -c MPI_data.F90
-
-MPIsolver_init.o: MPIsolver_init.F90 MPI_data.mod
-				$(MPIFF) -c MPIsolver_init.F90
-
-MPIsolver_finalize.o: MPIsolver_finalize.F90 MPI_data.mod
-				$(MPIFF) -c MPIsolver_finalize.F90
-
-MPI_applyBC.o: MPI_applyBC.F90 Solver.F90 MPI_data.mod Solver.h
-				$(MPIFF) -c MPI_applyBC.F90
-
-MPI_CollectResiduals.o: MPI_CollectResiduals.F90 MPI_data.mod
-				$(MPIFF) -c MPI_CollectResiduals.F90
-
-MPI_physicalBC_vel.o: MPI_physicalBC_vel.F90 MPI_data.mod
-				$(MPIFF) -c MPI_physicalBC_vel.F90
-
-MPI_physicalBC_pres.o: MPI_physicalBC_pres.F90 MPI_data.mod
-				$(MPIFF) -c MPI_physicalBC_pres.F90
-
-Solver.o : Solver.F90 Grid_interface.mod IO_interface.mod IncompNS_interface.mod MPI_interface.mod
-				$(FF) -c Solver.F90
+include Makefile.Depend
 
 clean:
-	rm *.o *.mod *.dat Solver
-
-clr:
-	rm *.o *.mod
+	rm *.dat *.mod *.o $(EXE)
