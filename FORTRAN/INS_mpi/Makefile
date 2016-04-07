@@ -1,6 +1,6 @@
-#MPI_PATH = /usr/local
+MPI_PATH = /usr/local
 #MPI_PATH = /usr
-MPI_PATH = /opt/mpich2-1.4.1p1/
+#MPI_PATH = /opt/mpich2-1.4.1p1/
 #PGI_PATH = /opt/pgi/osx86-64/2016
 
 FF = $(MPI_PATH)/bin/mpif90
