@@ -13,26 +13,26 @@ subroutine MPI_physicalBC_pres(p_ex)
 
        call MPI_BARRIER(solver_comm, ierr)
     
-       if ( mod(myid,HK) == 0) then
+       if ( x_id == 0) then
 
            p_ex(1,:)=p_ex(2,:)
 
        end if
 
-       if ( mod(myid,HK) == HK-1) then
+       if ( x_id == HK-1) then
 
            p_ex(Nxb+2,:)=p_ex(Nxb+1,:)
 
        end if
 
 
-       if ( myid/HK == 0) then
+       if ( y_id == 0) then
 
            p_ex(:,1)=p_ex(:,2)
 
        end if
 
-       if ( myid/HK == HK-1) then
+       if ( y_id == HK-1) then
 
            p_ex(:,Nyb+2)=p_ex(:,Nyb+1)
 

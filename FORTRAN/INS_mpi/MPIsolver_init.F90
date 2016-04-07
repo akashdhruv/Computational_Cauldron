@@ -1,5 +1,7 @@
 subroutine MPIsolver_init()
 
+#include "Solver.h"
+
     use MPI_data
     implicit none
 
@@ -10,5 +12,14 @@ subroutine MPIsolver_init()
     call MPI_INIT(ierr)
     call MPI_COMM_RANK(solver_comm, myid, ierr)
     call MPI_COMM_SIZE(solver_comm, procs, ierr)
+
+    call MPI_COMM_SPLIT(solver_comm,myid/HK,myid,x_comm,ierr)
+    call MPI_COMM_SPLIT(solver_comm,mod(myid,HK),myid,y_comm,ierr)
+
+    call MPI_COMM_RANK(x_comm,x_id,ierr)
+    call MPI_COMM_SIZE(x_comm,x_procs,ierr)
+
+    call MPI_COMM_RANK(y_comm,y_id,ierr)
+    call MPI_COMM_size(y_comm,y_procs,ierr)
 
 end subroutine MPIsolver_init 

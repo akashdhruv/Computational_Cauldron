@@ -99,9 +99,9 @@ dy_nodes(Nxb+2,:) = dy_nodes(Nxb+1,:)
 dx_centers = 0.5*(dx_nodes(1:Nxb+1,1:Nyb+1)+dx_nodes(2:Nxb+2,1:Nyb+1))
 dy_centers = 0.5*(dy_nodes(1:Nxb+1,1:Nyb+1)+dy_nodes(1:Nxb+1,2:Nyb+2)) 
 
-dt = 0.05*min(minval(dx_nodes),minval(dy_nodes))
+dt = 0.03*min(minval(dx_nodes),minval(dy_nodes))
 
 nt = t/dt
-!nt = 2
+!nt = 1
 
 end subroutine Grid_init

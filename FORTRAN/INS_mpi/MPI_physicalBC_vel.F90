@@ -13,14 +13,14 @@ subroutine MPI_physicalBC_vel(u_ex,v_ex)
        
        call MPI_BARRIER(solver_comm, ierr)
 
-       if ( mod(myid,HK) == 0) then
+       if ( x_id == 0) then
 
            v_ex(1,:)=-v_ex(2,:)
            u_ex(1,:)=0
 
        end if
 
-       if ( mod(myid,HK) == HK-1) then
+       if ( x_id == HK-1) then
 
            v_ex(Nxb+2,:)=-v_ex(Nxb+1,:)
            u_ex(Nxb+1,:)=0
@@ -29,14 +29,14 @@ subroutine MPI_physicalBC_vel(u_ex,v_ex)
        end if
 
 
-       if ( myid/HK == 0) then
+       if ( y_id == 0) then
 
            v_ex(:,1)=0
            u_ex(:,1)=-u_ex(:,2)
 
        end if
 
-       if ( myid/HK == HK-1) then
+       if ( y_id == HK-1) then
 
            v_ex(:,Nyb+2)=0
            v_ex(:,Nyb+1)=0
