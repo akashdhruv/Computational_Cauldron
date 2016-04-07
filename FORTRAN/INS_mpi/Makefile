@@ -1,8 +1,17 @@
-FF = mpif90
+MPI_PATH = /usr/local
+#MPI_PATH = /opt/mpich2-1.4.1p1/
+#PGI_PATH = /opt/pgi/osx86-64/2016
+
+FF = $(MPI_PATH)/bin/mpif90
+#FF = $(PGI_PATH)/bin/pgf90
+
 FFLAGS = -c
+#FFLAGS = -c -Mmpi=mpich
+
+EXEFLAGS = -o
+#EXEFLAGS = -Mmpi=mpich -o
 
 EXE = Solver
-EXEFLAGS = -o
 
 %.o %.mod: %.F90
 	$(FF) $(FFLAGS) $<
