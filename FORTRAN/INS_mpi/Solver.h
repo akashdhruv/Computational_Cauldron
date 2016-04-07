@@ -25,7 +25,7 @@
 #endif
 
 #if SOLVER == 4
-#define POISSON_SOLVER_FFT
+#define POISSON_SOLVER_MULTIGRID
 #endif
 
 

@@ -14,6 +14,8 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
   real, dimension(Nxb+2,Nyb+2) :: p_old
 
+  real, dimension((Nxb+2)*(Nyb+2), (Nxb+2)*(Nyb+2)) :: A
+
   real, intent(out) :: p_res
         
   real :: p_res1
@@ -80,9 +82,23 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
 #endif
 
-#ifdef POISSON_SOLVER_FFT
+#ifdef POISSON_SOLVER_MULTIGRID
 
-! FFT Solver -- Coming soon --
+
+!!!!!!!!! IN PROGRESS !!!!!!!!!!!!!!!
+
+     do j=2,Nyb+1
+        do i=2,Nxb+1
+
+           p(i,j)=((p_old(i,j+1)/(dy_centers(i,j)*dy_nodes(i,j)))+(p(i,j-1)/(dy_nodes(i,j)*dy_centers(i-1,j-1)))&
+                  +(p_old(i+1,j)/(dx_centers(i,j)*dx_nodes(i,j)))+(p(i-1,j)/(dx_nodes(i,j)*dx_centers(i-1,j-1)))&
+                  -((1/(dy_nodes(i,j)*dt))*(vt(i,j)-vt(i,j-1)))&
+                  -((1/(dx_nodes(i,j)*dt))*(ut(i,j)-ut(i-1,j))))&
+                  *(1/((1/(dx_nodes(i,j)*dx_centers(i-1,j-1)))+(1/(dy_nodes(i,j)*dy_centers(i-1,j-1)))+&
+                   (1/(dx_nodes(i,j)*dx_centers(i,j)))+(1/(dy_nodes(i,j)*dy_centers(i,j)))))
+
+        end do
+     end do
 
 #endif
 
