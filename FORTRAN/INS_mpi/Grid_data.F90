@@ -25,6 +25,6 @@ module Grid_data
        real, save :: t
        real, save :: dt
 
-       integer(kind=8), save :: nt
+       integer, save :: nt
 
 end module Grid_data 
