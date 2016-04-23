@@ -11,8 +11,6 @@ subroutine MPI_physicalBC_vel(u_ex,v_ex)
        real, dimension(Nxb+2,Nyb+2), intent(inout) :: u_ex, v_ex
        integer :: status(MPI_STATUS_SIZE)
        
-       call MPI_BARRIER(solver_comm, ierr)
-
        if ( x_id == 0) then
 
            v_ex(1,:)=-v_ex(2,:)
@@ -43,7 +41,5 @@ subroutine MPI_physicalBC_vel(u_ex,v_ex)
            u_ex(:,Nyb+2)=2-u_ex(:,Nyb+1)
 
        end if
-
-      call MPI_BARRIER(solver_comm, ierr)
 
 end subroutine MPI_physicalBC_vel

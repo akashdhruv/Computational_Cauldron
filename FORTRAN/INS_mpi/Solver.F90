@@ -4,6 +4,7 @@ use Grid_interface, ONLY: Grid_init
 use IO_interface, ONLY: IO_display
 use IncompNS_interface, ONLY: IncompNS_init
 use MPI_interface, ONLY: MPIsolver_init, MPIsolver_finalize
+use MPI_data
 
    implicit none
 

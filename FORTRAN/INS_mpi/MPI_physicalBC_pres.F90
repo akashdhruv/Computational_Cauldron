@@ -10,8 +10,6 @@ subroutine MPI_physicalBC_pres(p_ex)
 
        real, dimension(Nxb+2,Nyb+2), intent(inout) :: p_ex
        integer :: status(MPI_STATUS_SIZE)
-
-       call MPI_BARRIER(solver_comm, ierr)
     
        if ( x_id == 0) then
 
@@ -38,7 +36,4 @@ subroutine MPI_physicalBC_pres(p_ex)
 
        end if
    
-
-       call MPI_BARRIER(solver_comm, ierr)
-
 end subroutine MPI_physicalBC_pres

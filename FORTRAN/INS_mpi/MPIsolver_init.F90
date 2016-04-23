@@ -22,4 +22,6 @@ subroutine MPIsolver_init()
     call MPI_COMM_RANK(y_comm,y_id,ierr)
     call MPI_COMM_size(y_comm,y_procs,ierr)
 
+    call cpu_time(start)
+
 end subroutine MPIsolver_init 

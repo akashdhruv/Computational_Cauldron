@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-k=2
+k=4
 d=2
 
-M=20+1
-N=20+1
+M=12+1
+N=12+1
 
 X=np.zeros((N*k,M*k),dtype=float)
 Y=np.zeros((N*k,M*k),dtype=float)
@@ -14,12 +14,19 @@ V=np.zeros((N*k,M*k),dtype=float)
 P=np.zeros((N*k,M*k),dtype=float)
 
 for i in range(0,k**d):
-
-	x=np.loadtxt('X%d.dat' % i)
-	y=np.loadtxt('Y%d.dat' % i)
-	u=np.loadtxt('U%d.dat' % i)
-	v=np.loadtxt('V%d.dat' % i)
-        p=np.loadtxt('P%d.dat' % i)
+	
+	if(i<=9):
+		x=np.loadtxt('X0%d.dat' % i)
+		y=np.loadtxt('Y0%d.dat' % i)
+		u=np.loadtxt('U0%d.dat' % i)
+		v=np.loadtxt('V0%d.dat' % i)
+        	p=np.loadtxt('P0%d.dat' % i)
+	else:
+		x=np.loadtxt('X%d.dat' % i)
+		y=np.loadtxt('Y%d.dat' % i)
+		u=np.loadtxt('U%d.dat' % i)
+		v=np.loadtxt('V%d.dat' % i)
+		p=np.loadtxt('P%d.dat' % i)
         
 	x=np.reshape(x,[N,M])
 	y=np.reshape(y,[N,M])

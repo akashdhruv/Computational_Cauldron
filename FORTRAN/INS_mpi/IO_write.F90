@@ -7,11 +7,11 @@ subroutine IO_write(x,y,uu,vv,pp,id)
        integer, intent(in) :: id
        character(len=10) :: f1,f2,f3,f4,f5
      
-       write (f1, '( "X", I1, ".dat" )' )id
-       write (f2, '( "Y", I1, ".dat" )' )id
-       write (f3, '( "U", I1, ".dat" )' )id
-       write (f4, '( "V", I1, ".dat" )' )id
-       write (f5, '( "P", I1, ".dat" )' )id
+       write (f1, '( "X", I2.2, ".dat" )' )id
+       write (f2, '( "Y", I2.2, ".dat" )' )id
+       write (f3, '( "U", I2.2, ".dat" )' )id
+       write (f4, '( "V", I2.2, ".dat" )' )id
+       write (f5, '( "P", I2.2, ".dat" )' )id
 
        open(unit = 1, file = f1)
        open(unit = 2, file = f2)

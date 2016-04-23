@@ -11,6 +11,4 @@ subroutine MPI_CollectResiduals(res,res1)
       
       call MPI_ALLREDUCE(res,res1,1,MPI_REAL,MPI_SUM,solver_comm,ierr)
 
-      call MPI_BARRIER(solver_comm,ierr)
-
 end subroutine MPI_CollectResiduals
