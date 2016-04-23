@@ -35,5 +35,7 @@ subroutine MPI_physicalBC_pres(p_ex)
            p_ex(:,Nyb+2)=p_ex(:,Nyb+1)
 
        end if
+
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
    
 end subroutine MPI_physicalBC_pres

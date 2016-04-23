@@ -42,4 +42,6 @@ subroutine MPI_physicalBC_vel(u_ex,v_ex)
 
        end if
 
+       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+
 end subroutine MPI_physicalBC_vel

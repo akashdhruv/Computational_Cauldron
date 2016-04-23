@@ -32,8 +32,8 @@
 #define MAX_STRING_LENGTH 80
 
 
-#define Nxb 16
-#define Nyb 16
+#define Nxb 216
+#define Nyb 216
 
 
 #define D_xmin -0.5
@@ -44,7 +44,7 @@
 #define D_ymax 0.5
 
 
-#define HK 3
+#define HK 2
 #define HD 2
  
 
