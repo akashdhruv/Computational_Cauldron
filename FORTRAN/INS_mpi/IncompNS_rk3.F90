@@ -138,14 +138,14 @@ subroutine IncompNS_rk3()
 
        if( (u_res .lt. 0.0000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.0000001) .and. (v_res .ne. 0) ) exit
 
-       if(mod(tstep,5) == 0)then
+!       if(mod(tstep,5) == 0)then
         
-             uu = ((u(1:Nxb+1,1:Nyb+1)+u(1:Nxb+1,2:Nyb+2))/2 + (u(2:Nxb+2,1:Nyb+1)+u(2:Nxb+2,2:Nyb+2))/2)/2
-             vv = ((v(1:Nxb+1,1:Nyb+1)+v(2:Nxb+2,1:Nyb+1))/2 + (v(1:Nxb+1,2:Nyb+2)+v(2:Nxb+2,2:Nyb+2))/2)/2
-             pp = ((p(1:Nxb+1,1:Nyb+1)+p(2:Nxb+2,1:Nyb+1))/2 + (p(1:Nxb+1,2:Nyb+2)+p(2:Nxb+2,2:Nyb+2))/2)/2
+!             uu = ((u(1:Nxb+1,1:Nyb+1)+u(1:Nxb+1,2:Nyb+2))/2 + (u(2:Nxb+2,1:Nyb+1)+u(2:Nxb+2,2:Nyb+2))/2)/2
+!             vv = ((v(1:Nxb+1,1:Nyb+1)+v(2:Nxb+2,1:Nyb+1))/2 + (v(1:Nxb+1,2:Nyb+2)+v(2:Nxb+2,2:Nyb+2))/2)/2
+!             pp = ((p(1:Nxb+1,1:Nyb+1)+p(2:Nxb+2,1:Nyb+1))/2 + (p(1:Nxb+1,2:Nyb+2)+p(2:Nxb+2,2:Nyb+2))/2)/2
 
-             call IO_write(x,y,uu,vv,pp,myid)
-       end if       
+!             call IO_write(x,y,uu,vv,pp,myid)
+!       end if       
 
 
        tstep = tstep +1
