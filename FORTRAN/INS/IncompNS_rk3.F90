@@ -140,7 +140,7 @@ subroutine IncompNS_rk3()
 
           call IO_display(u_res,v_res,p_res,p_counter,tstep*dt)
       
-          if( (u_res .lt. 0.000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.000001) .and. (v_res .ne. 0) ) exit
+          if( (u_res .lt. 0.0000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.0000001) .and. (v_res .ne. 0) ) exit
 
        endif
 

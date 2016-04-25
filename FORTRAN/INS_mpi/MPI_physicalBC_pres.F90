@@ -36,6 +36,6 @@ subroutine MPI_physicalBC_pres(p_ex)
 
        end if
 
-       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+       call MPI_BARRIER(solver_comm,ierr)
    
 end subroutine MPI_physicalBC_pres
