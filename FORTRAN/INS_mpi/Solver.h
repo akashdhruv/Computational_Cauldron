@@ -8,8 +8,7 @@
 
 #endif
 
-
-#define SOLVER 3
+#define SOLVER 2
 
 #if SOLVER == 1
 #define POISSON_SOLVER_JACOBI
@@ -32,8 +31,8 @@
 #define MAX_STRING_LENGTH 80
 
 
-#define Nxb 12
-#define Nyb 12
+#define Nxb 24
+#define Nyb 24
 
 
 #define D_xmin -0.5
@@ -44,7 +43,7 @@
 #define D_ymax 0.5
 
 
-#define HK 4
+#define HK 2
 #define HD 2
  
 

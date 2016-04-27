@@ -16,29 +16,27 @@ EXEFLAGS = -o
 
 EXE = Solver
 
-%.o %.mod: %.F90
-	$(MPIFF) $(FFLAGS) $<
+#%.o %.mod: %.F90
+#	$(MPIFF) $(FFLAGS) $<
 
-Headers += Solver.h
 
 Modules += Grid_interface.mod Grid_data.mod IO_interface.mod IncompNS_interface.mod IncompNS_data.mod Poisson_interface.mod MPI_interface.mod MPI_data.mod
 
 Objects += Grid_data.o Grid_init.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o IO_display.o MPIsolver_init.o MPIsolver_finalize.o \
           MPI_data.o MPI_applyBC.o MPI_physicalBC_vel.o MPI_physicalBC_pres.o MPI_CollectResiduals.o Solver.o
 
-#MPI_objects += MPIsolver_init.o MPIsolver_finalize.o MPI_applyBC.o MPI_physicalBC_vel.o MPI_physicalBC_pres.o MPI_CollectResiduals.o
+ALL_OBJS = $(Modules) $(Objects)
 
-ALL_OBJS = $(Headers) $(Modules) $(Objects)
-
-REBUILDABLES = $(filter-out $(Headers),$(ALL_OBJS)) $(EXE)
-
-#Fortran_objects += $(filter-out $(MPI_objects),$(Objects))
+LINKER_OBJS = $(filter-out $(Modules),$(ALL_OBJS))
 
 
 $(EXE): $(ALL_OBJS) 
-	$(MPIFF) $(EXEFLAGS) $(EXE) $(Objects)
+	$(MPIFF) $(EXEFLAGS) $(EXE) $(LINKER_OBJS)
 
 include Makefile.Depend
+
+%.o %.mod: %.F90
+	$(MPIFF) $(FFLAGS) $<
 
 clean:
 	rm *.dat *.mod *.o $(EXE)
