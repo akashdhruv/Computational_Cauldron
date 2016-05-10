@@ -1,24 +1,24 @@
 clear all
-close all
+%close all
 clc
 
 % Defining Geometry and Freestream Conditions
 M=20;
-alpha=10*pi/180;
-delta=21*pi/180;
-x_disp=1.02;
-z_disp=-0.05;
+alpha=5*pi/180;
+delta=20*pi/180;
+x_disp=.80;
+z_disp=-0.02;
 
 Q_inf=1;
 U_inf=Q_inf*cos(alpha);
 W_inf=Q_inf*sin(alpha);
 
-[xu,zu,xl,zl]= naca4m('4412',1,M);
+[xu,zu,xl,zl]= naca4m('4412',0.8,M);
 xmain=[xl; flipud(xu(1:end-1))];
 zmain=[zl; flipud(zu(1:end-1))];
 zmain(end)=0;
 
-[xu,zu,xl,zl]  = naca4m('4415',0.5,M);
+[xu,zu,xl,zl]  = naca4m('4415',0.15,M);
 xflap = [xl; flipud(xu(1:end-1))]; 
 zflap = [zl; flipud(zu(1:end-1))];
 zflap(end)=0;
