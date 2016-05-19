@@ -16,7 +16,7 @@ subroutine Grid_init()
      Lx = Lx/HK
      Ly = Ly/HK
 
-     inRe = .01
+     inRe = .001
 
      dx = Lx/Nxb
      dy = Ly/Nyb
