@@ -1,3 +1,7 @@
+#if 0
+Defining Grid Parameters
+#endif
+
 #define GRID 1
 
 #if GRID == 1
@@ -8,22 +12,41 @@
 
 #endif
 
-#define SOLVER 2
+#if 0
+Defining Poisson Solver Parameters
+#endif
 
-#if SOLVER == 1
+#define POIS_SOLVER 2
+
+#if POIS_SOLVER == 1
 #define POISSON_SOLVER_JACOBI
+#endif
+
+#if POIS_SOLVER == 2
+#define POISSON_SOLVER_GS
+#endif
+
+#if POIS_SOLVER == 3
+#define POISSON_SOLVER_GSOR
+#define omega 1.1
+#endif
+
+#if 0
+Defining Temperature Solver
+#endif
+
+#define TEMP_SOLVER 1
+
+#if TEMP_SOLVER == 1
 #define TEMP_SOLVER_CENTRAL
 #endif
 
-#if SOLVER == 2
-#define POISSON_SOLVER_GS
+#if TEMP_SOLVER == 2
 #define TEMP_SOLVER_UPWIND
 #endif
 
-#if SOLVER == 3
-#define POISSON_SOLVER_GSOR
-#define omega 1.1
-#define TEMP_SOLVER_UPWIND
+#if 0
+Defining Simulation Parameters - Block Size, Domain Length, etc
 #endif
 
 #define MAX_STRING_LENGTH 80
@@ -54,4 +77,20 @@
 
 #define VELC_VAR 1
 #define FACE_VAR 1
+
+
+#if 0
+Defining Flow Type
+#endif
+
+#define FLOW 1
+
+#if FLOW == 1
+#define LID_DRIVEN_FLOW
+#endif
+
+#if FLOW == 2
+#define CHANNEL_FLOW
+#endif
+
 

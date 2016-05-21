@@ -5,7 +5,7 @@ subroutine Driver_init()
 
       implicit none
 
-      dr_t  = 200.0
+      dr_t  = 1.0
       dr_dt = 0.03*min(minval(gr_dx_nodes),minval(gr_dy_nodes))
       dr_nt = dr_t/dr_dt
 

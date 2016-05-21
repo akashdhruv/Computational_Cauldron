@@ -22,6 +22,6 @@ subroutine IncompNS_init()
       nullify(u)
       nullify(v)
       
-      ins_inRe = 0.01
+      ins_inRe = 0.001
 
 end subroutine IncompNS_init
