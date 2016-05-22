@@ -19,5 +19,5 @@ Execution instructions
         python plot.py
      ~~~ 
 
-Author - Akash Dhruv
+Author - Akash V. Dhruv
 
