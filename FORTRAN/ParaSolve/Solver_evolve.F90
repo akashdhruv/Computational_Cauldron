@@ -32,7 +32,7 @@ subroutine Solver_evolve
        call HeatAD_solver(tstep)
 
        if (mod(tstep,5) == 0 .and. myid == 0) then
-          call IO_display(ins_u_res,ins_v_res,ins_p_res,ht_T_res,p_counter,tstep*dr_dt)
+          call IO_display(ins_u_res,ins_v_res,ins_p_res,ht_T_res,p_counter,tstep*dr_dt,ins_maxdiv,ins_mindiv)
        end if
 
        if((ins_u_res .lt. 0.0000001) .and. (ins_u_res .ne. 0).and. (ins_v_res .lt. 0.0000001) .and. (ins_v_res .ne. 0) ) exit

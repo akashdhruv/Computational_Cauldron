@@ -30,7 +30,7 @@ subroutine IncompNS_solver(tstep,p_counter)
        real, dimension(Nxb,Nyb)   :: D2
        real, dimension(Nxb,Nyb)   :: G2_old
 
-       real :: u_res1, v_res1
+       real :: u_res1, v_res1, maxdiv, mindiv
 
        real, dimension(Nxb,Nyb) :: p_RHS
        integer :: i
@@ -97,6 +97,8 @@ subroutine IncompNS_solver(tstep,p_counter)
 
        call Poisson_solver(p_RHS,p,ins_p_res,p_counter,PRES_VAR)
 
+       ! Corrector Step
+
        u(2:Nxb+1,2:Nyb+1) = ut(2:Nxb+1,2:Nyb+1) - (dr_dt/gr_dx_centers(2:Nxb+1,2:Nyb+1))*(p(3:Nxb+2,2:Nyb+1)-p(2:Nxb+1,2:Nyb+1))
        v(2:Nxb+1,2:Nyb+1) = vt(2:Nxb+1,2:Nyb+1) - (dr_dt/gr_dy_centers(2:Nxb+1,2:Nyb+1))*(p(2:Nxb+1,3:Nyb+2)-p(2:Nxb+1,2:Nyb+1))
 
@@ -105,6 +107,23 @@ subroutine IncompNS_solver(tstep,p_counter)
        call MPI_applyBC(u)
        call MPI_applyBC(v)
        call MPI_physicalBC_vel(u,v)
+
+       ! Divergence
+
+       maxdiv = -10.**(10.)
+       mindiv = 10.**(10.)
+
+       maxdiv = max(maxdiv,maxval(-((1/(gr_dy_nodes(2:Nxb+1,2:Nyb+1)))*(v(2:Nxb+1,2:Nyb+1)-v(2:Nxb+1,1:Nyb)))&
+                                  -((1/(gr_dx_nodes(2:Nxb+1,2:Nyb+1)))*(u(2:Nxb+1,2:Nyb+1)-u(1:Nxb,2:Nyb+1)))))
+
+       mindiv = min(mindiv,minval(-((1/(gr_dy_nodes(2:Nxb+1,2:Nyb+1)))*(v(2:Nxb+1,2:Nyb+1)-v(2:Nxb+1,1:Nyb)))&
+                                  -((1/(gr_dx_nodes(2:Nxb+1,2:Nyb+1)))*(u(2:Nxb+1,2:Nyb+1)-u(1:Nxb,2:Nyb+1)))))
+
+
+       call MPI_CollectResiduals(maxdiv,ins_maxdiv)
+       call MPI_CollectResiduals(mindiv,ins_mindiv)
+
+       ! Residuals
 
        do i=1,Nyb+2
           ins_u_res = ins_u_res + sum((u(:,i)-u_old(:,i))**2)

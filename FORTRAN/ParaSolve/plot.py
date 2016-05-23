@@ -45,11 +45,12 @@ for i in range(0,k**d):
         P[(i/k)*N:(i/k)*N+N,(i%k)*M:(i%k)*M+M]=p
 	T[(i/k)*N:(i/k)*N+N,(i%k)*M:(i%k)*M+M]=t
 
+"""
 plt.figure()
 plt.title('V Velocity')
 #plt.title('Re = 1000, Grid = 128 x 128, Solver = FORTRAN')
 #plt.contourf(X,Y,V,density=5)
-plt.quiver(X,Y,U,V)
+plt.streamplot(X,Y,U,V,density=5)
 plt.plot(X[:,0],Y[:,0],'k')
 plt.plot(X[:,-1],Y[:,-1],'k')
 plt.plot(X[0,:],Y[0,:],'k')
@@ -62,7 +63,6 @@ plt.xlabel('X')
 plt.ylabel('Y')
 plt.axis('equal')
 
-"""
 plt.figure()
 plt.title('U Velocity')
 plt.contourf(X,Y,U,density=5)
@@ -103,6 +103,7 @@ plt.axis('equal')
 plt.figure()
 plt.title('Temperature')
 plt.contourf(X,Y,T,density=5)
+plt.streamplot(X,Y,U,V,density=4,color='k')
 plt.plot(X[:,0],Y[:,0],'k')
 plt.plot(X[:,-1],Y[:,-1],'k')
 plt.plot(X[0,:],Y[0,:],'k')
