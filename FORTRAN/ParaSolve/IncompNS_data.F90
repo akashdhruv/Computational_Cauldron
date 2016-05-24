@@ -1,9 +1,0 @@
-module IncompNS_data
-
-    implicit none
-
-    real, save :: ins_u_res,ins_v_res,ins_p_res
-    real, save :: ins_inRe
-    real, save :: ins_maxdiv, ins_mindiv
-
-end module IncompNS_data
