@@ -31,8 +31,8 @@
 #define MAX_STRING_LENGTH 80
 
 
-#define Nxb 24
-#define Nyb 24
+#define Nxb 20
+#define Nyb 20
 
 
 #define D_xmin -0.5

@@ -12,13 +12,15 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
   real, dimension(Nxb+2,Nyb+2), intent(in) :: ut
   real, dimension(Nxb+2,Nyb+2), intent(in) :: vt
 
-  real, dimension(Nxb+2,Nyb+2) :: p_old
+  real, dimension(Nxb+2,Nyb+2) :: p_old,p_new
 
   real, dimension((Nxb+2)*(Nyb+2), (Nxb+2)*(Nyb+2)) :: A
 
   real, intent(out) :: p_res
         
   real :: p_res1
+
+  real, dimension(:,:), allocatable :: p_priv
 
   integer, intent(out) :: p_counter
   integer :: i,j
@@ -31,6 +33,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
      p_res = 0  
      p_res1 = 0     
      p_old = p
+     p_new = 0.0
 
 #ifdef POISSON_SOLVER_JACOBI
 
@@ -49,6 +52,15 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
 #ifdef POISSON_SOLVER_GS
 
+     !DIR$ OFFLOAD BEGIN TARGET(mic) in(p_old,dy_centers,dy_nodes,dx_nodes,dx_centers,i,j,p_priv,p) inout(p_new)
+
+     !$OMP PARALLEL PRIVATE(i,j,p_priv) SHARED(p_old,dy_centers,dy_nodes,dx_nodes,dx_centers,p,p_new) NUM_THREADS(4)
+
+     allocate(p_priv(Nxb+2,Nyb+2))
+     p_priv = 0.0
+
+     !$OMP DO COLLAPSE(2) SCHEDULE(STATIC)
+
      do j=2,Nyb+1
         do i=2,Nxb+1
 
@@ -62,6 +74,19 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
         end do
      end do
 
+     !$OMP END DO
+
+     !$OMP CRITICAL
+     !p_new = p_new + p_priv
+     !$OMP END CRITICAL
+
+     deallocate(p_priv)
+
+     !$OMP END PARALLEL
+
+     !DIR$ END OFFLOAD
+
+     !p(2:Nxb+1,2:Nyb+1) = p_new(2:Nxb+1,2:Nyb+1)
 
 #endif
 

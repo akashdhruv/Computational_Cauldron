@@ -9,9 +9,11 @@ FF = gfortran
 #FF = $(PGI_PATH)/bin/pgf90
 
 FFLAGS = -c
+#FFLAGS = -fopenmp -c
 #FFLAGS = -c -Mmpi=mpich
 
 EXEFLAGS = -o
+#EXEFLAGS = -fopenmp -o
 #EXEFLAGS = -Mmpi=mpich -o
 
 EXE = Solver
