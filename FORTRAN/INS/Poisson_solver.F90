@@ -1,5 +1,6 @@
 subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
+  !$ use omp_lib
   use IncompNS_data
   use Grid_data 
 
@@ -18,10 +19,14 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
         
   integer, intent(out) :: p_counter
   integer :: i,j
-  integer :: OMP_GET_THREAD_NUM
+  real :: start,finish,time
+
+  !integer :: OMP_GET_THREAD_NUM
 
   p_old = 0
   p_counter = 0
+
+!  start = omp_get_wtime()
  
   do while(p_counter<MaxIt)
 
@@ -92,4 +97,8 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
   end do
 
+!  finish = omp_get_wtime()
+!  time = finish-start
+
+!  print *,"Poisson Time: ", time , "s"
 end subroutine Poisson_solver
