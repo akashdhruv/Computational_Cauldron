@@ -13,13 +13,12 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
   real, dimension(Nxb+2,Nyb+2) :: p_old,p_new
  
   real, intent(out) :: p_res
+
+  real, dimension(:,:), allocatable :: p_priv
         
   integer, intent(out) :: p_counter
   integer :: i,j
   integer :: OMP_GET_THREAD_NUM
-  integer :: BLOCK
-
-  BLOCK = 10
 
   p_old = 0
   p_counter = 0
@@ -40,17 +39,16 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
 #else
 
-    !$OMP PARALLEL PRIVATE(i,j) SHARED(p_old,dy,dx,p,p_new) NUM_THREADS(1)
-   
-    block 
-    real, dimension(Nxb+2,Nyb+2) :: p_priv 
-    p_priv = 0.0
+   !$OMP PARALLEL PRIVATE(i,j,p_priv) SHARED(p_old,dy,dx,p,p_new) NUM_THREADS(2)
+  
+   !allocate(p_priv(Nxb+2,Nyb+2))
+   !p_priv = 0.0
 
-    !$OMP DO COLLAPSE(2) SCHEDULE(STATIC,BLOCK)
+   !$OMP DO COLLAPSE(2) SCHEDULE(STATIC)
      do j=2,Nyb+1
-        do i=2,Nxb+1
-              
-       p_priv(i,j)=(((p_old(i,j+1)+p(i,j-1))/(dy*dy))&
+        do i=2,Nxb+1              
+
+       p(i,j)=(((p_old(i,j+1)+p(i,j-1))/(dy*dy))&
                    +((p_old(i+1,j)+p(i-1,j))/(dx*dx))&
                    -(1/(dy*dt))*(vt(i,j)-vt(i,j-1))&
                    -(1/(dx*dt))*(ut(i,j)-ut(i-1,j)))&
@@ -60,15 +58,16 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
         end do
      end do
      !$OMP END DO
+   
+     !!$OMP CRITICAL
+     !p_new = p_new + p_priv
+     !!$OMP END CRITICAL
+
+     !deallocate(p_priv)
     
-     !$OMP CRITICAL
-     p_new = p_new + p_priv
-     !$OMP END CRITICAL
-
-     end block
-
      !$OMP END PARALLEL
-     p(2:Nxb+1,2:Nyb+1) = p_new(2:Nxb+1,2:Nyb+1)
+
+     !p(2:Nxb+1,2:Nyb+1) = p_new(2:Nxb+1,2:Nyb+1)
 
 #endif
 
