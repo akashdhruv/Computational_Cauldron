@@ -54,7 +54,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
      !!DIR$ OFFLOAD BEGIN TARGET(mic) in(p_old,dy_centers,dy_nodes,dx_nodes,dx_centers,i,j,p_priv,p) inout(p_new)
 
-     !!$OMP PARALLEL PRIVATE(i,j,p_priv) SHARED(p_old,dy_centers,dy_nodes,dx_nodes,dx_centers,p,p_new) NUM_THREADS(4)
+     !$OMP PARALLEL PRIVATE(i,j,p_priv) SHARED(p_old,dy_centers,dy_nodes,dx_nodes,dx_centers,p,p_new) NUM_THREADS(1)
 
      !allocate(p_priv(Nxb+2,Nyb+2))
      !p_priv = 0.0
@@ -74,7 +74,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
         end do
      end do
 
-     !!$OMP END DO
+     !$OMP END DO
 
      !!$OMP CRITICAL
      !!p_new = p_new + p_priv
@@ -82,7 +82,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
      !deallocate(p_priv)
 
-     !!$OMP END PARALLEL
+     !$OMP END PARALLEL
 
      !!DIR$ END OFFLOAD
 

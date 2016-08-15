@@ -6,8 +6,8 @@ y=np.loadtxt('Y.dat')
 u=np.loadtxt('U.dat')
 v=np.loadtxt('V.dat')
 
-M=128+1
-N=128+1
+M=20+1
+N=20+1
 
 x=np.reshape(x,(N,M))
 y=np.reshape(y,(N,M))
