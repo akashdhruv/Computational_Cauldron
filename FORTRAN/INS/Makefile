@@ -1,6 +1,7 @@
 
 FF=gfortran
 FFLAGS = -fopenmp
+#FFLAGS = 
 
 Solver : Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o
 				$(FF) $(FFLAGS) -o Solver Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o

@@ -1,4 +1,4 @@
-subroutine Poisson_solver(ut,vt,p_res,p_counter)
+subroutine Poisson_solver(ut,vt,p_res,p_counter,time)
 
   !$ use omp_lib
   use IncompNS_data
@@ -19,20 +19,30 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
         
   integer, intent(out) :: p_counter
   integer :: i,j
-  real :: start,finish,time
 
-  !integer :: OMP_GET_THREAD_NUM
+  integer :: thread_id
+  double precision :: start,finish
+  double precision, intent(out) :: time
+
+  start = omp_get_wtime()
+
+  !$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,j,thread_id) SHARED(p,p_old,dx,dy,ut,vt,dt,p_res,p_counter) NUM_THREADS(1)
+
+  thread_id = OMP_GET_THREAD_NUM()
 
   p_old = 0
   p_counter = 0
-
-!  start = omp_get_wtime()
  
   do while(p_counter<MaxIt)
 
+     if(thread_id == 0) then
+
      p_res = 0       
      p_old = p
-     p_new = 0.0
+
+     end if
+
+     !$OMP BARRIER
 
 #ifdef POISSON_SOLVER_JACOBI
 
@@ -44,12 +54,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
 
 #else
 
-   !$OMP PARALLEL PRIVATE(i,j,p_priv) SHARED(p_old,dy,dx,p,p_new) NUM_THREADS(2)
-  
-   !allocate(p_priv(Nxb+2,Nyb+2))
-   !p_priv = 0.0
-
-   !$OMP DO COLLAPSE(2) SCHEDULE(STATIC)
+     !$OMP DO COLLAPSE(2)
      do j=2,Nyb+1
         do i=2,Nxb+1              
 
@@ -59,24 +64,15 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
                    -(1/(dx*dt))*(ut(i,j)-ut(i-1,j)))&
                    *(1/((2/(dx*dx))+(2/(dy*dy))))*omega &
                    + (1-omega)*p(i,j)
-
         end do
      end do
      !$OMP END DO
-   
-     !!$OMP CRITICAL
-     !p_new = p_new + p_priv
-     !!$OMP END CRITICAL
-
-     !deallocate(p_priv)
-    
-     !$OMP END PARALLEL
-
-     !p(2:Nxb+1,2:Nyb+1) = p_new(2:Nxb+1,2:Nyb+1)
 
 #endif
 
      ! Pressure BC
+
+     if (thread_id == 0) then
 
      p(:,1)=p(:,2)
      p(:,Nyb+2)=p(:,Nyb+1)
@@ -93,12 +89,17 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter)
      
      p_res = sqrt(p_res/((Nxb+2)*(Nyb+2)))
 
+     end if
+
+     !$OMP BARRIER
+
      if( (p_res .lt. 0.000001 ) .and. (p_res .ne. 0) ) exit
 
   end do
 
-!  finish = omp_get_wtime()
-!  time = finish-start
+  !$OMP END PARALLEL
 
-!  print *,"Poisson Time: ", time , "s"
+  finish = omp_get_wtime()
+  time = finish-start
+
 end subroutine Poisson_solver

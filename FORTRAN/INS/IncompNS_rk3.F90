@@ -29,6 +29,7 @@ subroutine IncompNS_rk3()
        real, dimension(Nxb,Nyb-1)   :: G2_old
 
        real :: p_res, v_res, u_res
+       double precision :: time
 
        integer :: tstep, p_counter, i
 
@@ -106,7 +107,7 @@ subroutine IncompNS_rk3()
 
        ! Poisson Solver
 
-       call Poisson_solver(ut,vt,p_res,p_counter)
+       call Poisson_solver(ut,vt,p_res,p_counter,time)
 
        u(2:Nxb,2:Nyb+1) = ut(2:Nxb,2:Nyb+1) - (dt/dx)*(p(3:Nxb+1,2:Nyb+1)-p(2:Nxb,2:Nyb+1))
        v(2:Nxb+1,2:Nyb) = vt(2:Nxb+1,2:Nyb) - (dt/dy)*(p(2:Nxb+1,3:Nyb+1)-p(2:Nxb+1,2:Nyb))
@@ -139,6 +140,7 @@ subroutine IncompNS_rk3()
        if (mod(tstep,5) == 0) then       
 
           call IO_display(u_res,v_res,p_res,p_counter,tstep*dt)
+          print '("Poisson Time: ",f10.7," ")',time
       
           if( (u_res .lt. 0.0000001) .and. (u_res .ne. 0).and. (v_res .lt. 0.0000001) .and. (v_res .ne. 0) ) exit
 

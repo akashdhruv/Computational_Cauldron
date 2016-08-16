@@ -39,7 +39,7 @@ subroutine Grid_init()
              !dt = (0.5*(dx**2)*(dy**2))/(inRe*((dx**2)+(dy**2)))
 
              nt = t/dt
-             !nt = 200
+!             nt = 1
 
 #endif
 

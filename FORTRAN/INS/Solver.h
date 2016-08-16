@@ -27,7 +27,7 @@
 
 #define MAX_STRING_LENGTH 80
 
-#define Nxb 500
-#define Nyb 500
+#define Nxb 250
+#define Nyb 250
 
 #define MaxIt 1500
