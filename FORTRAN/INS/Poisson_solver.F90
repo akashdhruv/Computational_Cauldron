@@ -26,23 +26,23 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter,time)
 
   start = omp_get_wtime()
 
-  !$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,j,thread_id) SHARED(p,p_old,dx,dy,ut,vt,dt,p_res,p_counter) NUM_THREADS(1)
+!  !$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,j,thread_id) SHARED(p,p_old,dx,dy,ut,vt,dt,p_res,p_counter) NUM_THREADS(1)
 
-  thread_id = OMP_GET_THREAD_NUM()
+!  thread_id = OMP_GET_THREAD_NUM()
 
   p_old = 0
   p_counter = 0
  
   do while(p_counter<MaxIt)
 
-     if(thread_id == 0) then
+!     if(thread_id == 0) then
 
      p_res = 0       
      p_old = p
 
-     end if
+!     end if
 
-     !$OMP BARRIER
+!     !$OMP BARRIER
 
 #ifdef POISSON_SOLVER_JACOBI
 
@@ -53,8 +53,10 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter,time)
                          *(1/((2/(dx*dx))+(2/(dy*dy))))
 
 #else
+    
+     !$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,j,thread_id) SHARED(p,p_old,dx,dy,ut,vt,dt) NUM_THREADS(4)
 
-     !$OMP DO COLLAPSE(2)
+     !$OMP DO COLLAPSE(2) SCHEDULE(STATIC)
      do j=2,Nyb+1
         do i=2,Nxb+1              
 
@@ -68,11 +70,13 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter,time)
      end do
      !$OMP END DO
 
+     !$OMP END PARALLEL
+
 #endif
 
      ! Pressure BC
 
-     if (thread_id == 0) then
+!     if (thread_id == 0) then
 
      p(:,1)=p(:,2)
      p(:,Nyb+2)=p(:,Nyb+1)
@@ -89,15 +93,15 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter,time)
      
      p_res = sqrt(p_res/((Nxb+2)*(Nyb+2)))
 
-     end if
+!     end if
 
-     !$OMP BARRIER
+!     !$OMP BARRIER
 
      if( (p_res .lt. 0.000001 ) .and. (p_res .ne. 0) ) exit
 
   end do
 
-  !$OMP END PARALLEL
+!  !$OMP END PARALLEL
 
   finish = omp_get_wtime()
   time = finish-start
