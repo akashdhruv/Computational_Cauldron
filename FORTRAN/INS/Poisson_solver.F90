@@ -54,7 +54,7 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter,time)
 
 #else
     
-     !$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,j,thread_id) SHARED(p,p_old,dx,dy,ut,vt,dt) NUM_THREADS(4)
+     !$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,j,thread_id) SHARED(p,p_old,dx,dy,ut,vt,dt) NUM_THREADS(2)
 
      !$OMP DO COLLAPSE(2) SCHEDULE(STATIC)
      do j=2,Nyb+1
