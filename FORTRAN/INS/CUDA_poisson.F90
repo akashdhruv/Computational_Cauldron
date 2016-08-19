@@ -7,13 +7,13 @@ attributes(global) subroutine CUDA_poisson(p,p_old,ut,vt,dx,dy,dt,omega)
 
     integer :: i,j,n(2)
 
-    i = (blockIdx%x-1)*blockDim%x + threadIdx%x
-    j = (blockIdx%y-1)*blockDim%y + threadIdx%y
+    i = (blockIdx%x-1)*blockDim%x + threadIdx%x + 1
+    j = (blockIdx%y-1)*blockDim%y + threadIdx%y + 1
 
     n(1) = size(p,1)
     n(2) = size(p,2)
 
-    if (i<=n(1) .and. j<=n(2)) then
+    if (i<n(1) .and. j<n(2)) then
 
        p(i,j)=(((p_old(i,j+1)+p(i,j-1))/(dy*dy))&
                    +((p_old(i+1,j)+p(i-1,j))/(dx*dx))&
