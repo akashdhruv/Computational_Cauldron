@@ -1,13 +1,13 @@
 
-FF=gfortran
-FFLAGS = -fopenmp
+#FF=gfortran
+#FFLAGS = -fopenmp
 
-#FF=pgfortran
-#FFLAGS=-Mcuda -mp
-#FFLAGS = 
+FF=pgfortran
+FFLAGS=-Mcuda -mp
+#FFLAGS = -mp 
 
-Solver : Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o
-				$(FF) $(FFLAGS) -o Solver Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o
+Solver : Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o CUDA_poisson.o
+				$(FF) $(FFLAGS) -o Solver Solver.o Grid_init.o IO_display.o Grid_data.o IncompNS_init.o IncompNS_data.o IncompNS_rk3.o Poisson_solver.o IO_write.o CUDA_poisson.o
 
 Grid_interface.o Grid_interface.mod: Grid_interface.F90
 				$(FF) $(FFLAGS) -c Grid_interface.F90
@@ -39,10 +39,16 @@ IncompNS_init.o: IncompNS_init.F90 IncompNS_data.mod IncompNS_interface.mod Grid
 IncompNS_rk3.o: IncompNS_rk3.F90 Grid_data.mod IncompNS_data.mod IO_interface.mod Poisson_interface.mod Solver.h
 				$(FF) $(FFLAGS) -c IncompNS_rk3.F90
 
+CUDA_interface.o CUDA_interface.mod: CUDA_interface.F90
+				$(FF) $(FFLAGS) -c CUDA_interface.F90
+
+CUDA_poisson.o: CUDA_poisson.F90
+				$(FF) $(FFLAGS) -c CUDA_poisson.F90
+
 Poisson_interface.o Poisson_interface.mod: Poisson_interface.F90 Solver.h
 				$(FF) $(FFLAGS) -c Poisson_interface.F90
 
-Poisson_solver.o: Poisson_solver.F90 IncompNS_data.mod Grid_data.mod Solver.h
+Poisson_solver.o: Poisson_solver.F90 IncompNS_data.mod Grid_data.mod Solver.h CUDA_interface.mod
 				$(FF) $(FFLAGS) -c Poisson_solver.F90
 
 Solver.o : Solver.F90 Grid_interface.mod IO_interface.mod IncompNS_interface.mod

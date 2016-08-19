@@ -3,6 +3,8 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter,time)
   !$ use omp_lib
   use IncompNS_data
   use Grid_data 
+  use cudafor
+  !use CUDA_interface
 
 #include "Solver.h"
                 
@@ -24,6 +26,12 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter,time)
   double precision :: start,finish
   double precision, intent(out) :: time
 
+  real, dimension(Nxb+2,Nyb+2), device :: p_d,p_old_d
+  real, dimension(Nxb+1,Nyb+2), device :: ut_d
+  real, dimension(Nxb+2,Nyb+1), device :: vt_d
+
+  type(dim3) :: grid, tBlock
+
   start = omp_get_wtime()
 
 !  !$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,j,thread_id) SHARED(p,p_old,dx,dy,ut,vt,dt,p_res,p_counter) NUM_THREADS(1)
@@ -32,6 +40,9 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter,time)
 
   p_old = 0
   p_counter = 0
+
+  tBlock = dim3(10,10,1)
+  grid   = dim3(2,2,1)
  
   do while(p_counter<MaxIt)
 
@@ -54,23 +65,35 @@ subroutine Poisson_solver(ut,vt,p_res,p_counter,time)
 
 #else
     
-     !$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,j,thread_id) SHARED(p,p_old,dx,dy,ut,vt,dt) NUM_THREADS(2)
+!     !$OMP PARALLEL DEFAULT(NONE) PRIVATE(i,j,thread_id) SHARED(p,p_old,dx,dy,ut,vt,dt) NUM_THREADS(2)
 
-     !$OMP DO COLLAPSE(2) SCHEDULE(STATIC)
-     do j=2,Nyb+1
-        do i=2,Nxb+1              
+!     !$OMP DO COLLAPSE(2) SCHEDULE(STATIC)
 
-       p(i,j)=(((p_old(i,j+1)+p(i,j-1))/(dy*dy))&
-                   +((p_old(i+1,j)+p(i-1,j))/(dx*dx))&
-                   -(1/(dy*dt))*(vt(i,j)-vt(i,j-1))&
-                   -(1/(dx*dt))*(ut(i,j)-ut(i-1,j)))&
-                   *(1/((2/(dx*dx))+(2/(dy*dy))))*omega &
-                   + (1-omega)*p(i,j)
-        end do
-     end do
-     !$OMP END DO
 
-     !$OMP END PARALLEL
+     p_d = p
+     p_old_d = p_old
+     ut_d = ut
+     vt_d = vt
+
+     call CUDA_poisson<<<grid,tBlock>>>(p_d,p_old_d,ut_d,vt_d,dx,dy,dt,omega)
+
+     p = p_d
+
+!     do j=2,Nyb+1
+!        do i=2,Nxb+1              
+
+!       p(i,j)=(((p_old(i,j+1)+p(i,j-1))/(dy*dy))&
+!                   +((p_old(i+1,j)+p(i-1,j))/(dx*dx))&
+!                   -(1/(dy*dt))*(vt(i,j)-vt(i,j-1))&
+!                   -(1/(dx*dt))*(ut(i,j)-ut(i-1,j)))&
+!                   *(1/((2/(dx*dx))+(2/(dy*dy))))*omega &
+!                   + (1-omega)*p(i,j)
+!        end do
+!     end do
+
+!     !$OMP END DO
+
+!     !$OMP END PARALLEL
 
 #endif
 

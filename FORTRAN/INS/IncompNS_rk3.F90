@@ -4,6 +4,8 @@ subroutine IncompNS_rk3()
        use Poisson_interface, ONLY: Poisson_solver            
        use IncompNS_data
        use Grid_data
+       !use CUDA_interface, ONLY: CUDA_Poisson
+       !use cudafor
 
 #include "Solver.h"
 
