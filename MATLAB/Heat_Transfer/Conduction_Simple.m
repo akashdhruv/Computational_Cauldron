@@ -4,11 +4,14 @@
 
 % Emptying the stack memory from previous scripts, closing all figures and
 % clearing screen
-clear all
+clear
 close all
 clc
 
 % All values are in SI Units
+
+% Timing the code - Start
+tic
 
 % Defining Domain, Lx = 30 cm, Ly = 30 cm
 Lx = 0.3; % m
@@ -57,7 +60,7 @@ dt = 0.5*(1/(2*alpha))*(1/((1/(dx^2))+(1/(dy^2))));
 % Defining number of time steps
 nt = ceil(t/dt); 
 
-%nt = floort(t/dt); % can also use this
+%nt = floor(t/dt); % can also use this
 
 % ceil (ceiling) and floor (floor) return high/low integer values
 % respectively. Type ' help ceil ' or ' help floor ' in command window 
@@ -124,6 +127,9 @@ end
 
 % Interpolate values from cell center to nodal points
 TT = (T(1:Nx+1,1:Ny+1)+T(1:Nx+1,2:Ny+2)+T(2:Nx+2,1:Ny+1)+T(2:Nx+2,2:Ny+2))/4;
+
+% Timing the code - End
+toc
 
 % Plot results, use X,Y meshgrid points to specify T location
 figure
