@@ -1,3 +1,4 @@
+## Unix Lecture Notes
 
 - To download from a web page type
 
@@ -133,4 +134,11 @@
   ~~~
 
 
+## Python Lecture Notes
+
+- If %matplotlib inline is not working, then restart kernel by typing
+
+  ~~~terminal
+  ipython notebook --pylab=inline
+  ~~~
 
