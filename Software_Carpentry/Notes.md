@@ -142,3 +142,6 @@
   ipython notebook --pylab=inline
   ~~~
 
+## Git Lecture Notes
+
+- git remote set-url origin <newurl>
