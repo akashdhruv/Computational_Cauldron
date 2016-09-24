@@ -145,3 +145,24 @@
 ## Git Lecture Notes
 
 - git remote set-url origin <newurl>
+
+- branching and merging from branches
+
+  ~~~terminal
+  git branch dev
+  git checkout dev
+  ~~~
+
+  make changes and commit 
+
+  ~~~terminal
+  git checkout dev
+  git merge dev
+  ~~~
+
+  Resolve conflict if any
+
+  ~~~terminal
+  git branch -D dev
+  ~~~
+
