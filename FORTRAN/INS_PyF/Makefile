@@ -1,5 +1,5 @@
 FF=f2py
-FFLAGS = -c -m
+FFLAGS = -c --fcompiler=gfortran -m
 
 all: INS.so POISSON.so HEAT.so
 

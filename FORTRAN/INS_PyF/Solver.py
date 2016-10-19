@@ -4,7 +4,107 @@ import POISSON
 import HEAT
 import numpy as np
 from math import *
+from mpi4py import MPI
 import matplotlib.pyplot as plt
+
+
+# Defining MPI communication function
+
+def MPI_applyBC(u,x_id,y_id,x_procs,y_procs,x_comm,y_comm):
+
+	if(x_procs > 1):
+
+		if(x_id%2 == 0):
+
+			if(x_id == 0):
+
+				x_comm.send(u[-2,:],dest=(x_id+1)%x_procs,tag=1)
+				u[-1,:] = x_comm.recv(source=(x_id+1)%x_procs,tag=2)
+
+			elif(x_id == nblockx - 1):
+
+				x_comm.send(u[1,:],dest=(x_id-1+x_procs)%x_procs,tag=3)
+				u[0,:] = x_comm.recv(source=(x_id-1+x_procs)%x_procs,tag=4)
+
+			else:
+				x_comm.send(u[-2,:],dest=(x_id+1)%x_procs,tag=1)
+				u[-1,:] = x_comm.recv(source=(x_id+1)%x_procs,tag=2)
+
+				x_comm.send(u[1,:],dest=(x_id-1+x_procs)%x_procs,tag=3)
+				u[0,:] = x_comm.recv(source=(x_id-1+x_procs)%x_procs,tag=4)
+
+		elif(x_id%2 == 1):
+
+			if(x_id == nblockx - 1):
+				
+				x_comm.send(u[1,:],dest=(x_id-1+x_procs)%x_procs,tag=2)
+				u[0,:] = x_comm.recv(source=(x_id-1+x_procs)%x_procs,tag=1)
+
+			else:
+
+				x_comm.send(u[1,:],dest=(x_id-1+x_procs)%x_procs,tag=2)
+				u[0,:] = x_comm.recv(source=(x_id-1+x_procs)%x_procs,tag=1)
+				
+				x_comm.send(u[-2,:],dest=(x_id+1)%x_procs,tag=4)	
+				u[-1,:] = x_comm.recv(source=(x_id+1)%x_procs,tag=3)
+
+	if(y_procs > 1):
+
+		if(y_id%2 == 0):
+
+			if(y_id == 0):
+
+				y_comm.send(u[:,-2],dest=(y_id+1)%y_procs,tag=5)
+				u[:,-1] = y_comm.recv(source=(y_id+1)%y_procs,tag=6)
+
+			elif(y_id == nblocky - 1):
+
+				y_comm.send(u[:,1],dest=(y_id-1+y_procs)%y_procs,tag=7)
+				u[:,0] = y_comm.recv(source=(y_id-1+y_procs)%y_procs,tag=8)
+
+			else:
+
+				y_comm.send(u[:,-2],dest=(y_id+1)%y_procs,tag=5)
+				u[:,-1] = y_comm.recv(source=(y_id+1)%y_procs,tag=6)
+
+				y_comm.send(u[:,1],dest=(y_id-1+y_procs)%y_procs,tag=7)
+				u[:,0] = y_comm.recv(source=(y_id-1+y_procs)%y_procs,tag=8)
+
+
+		elif(y_id%2 == 1):
+
+			if(y_id == nblocky - 1):
+
+				y_comm.send(u[:,1],dest=(y_id-1+y_procs)%y_procs,tag=6)
+				u[:,0] = y_comm.recv(source=(y_id-1+y_procs)%y_procs,tag=5)
+		
+			else:
+
+				y_comm.send(u[:,1],dest=(y_id-1+y_procs)%y_procs,tag=6)
+				u[:,0] = y_comm.recv(source=(y_id-1+y_procs)%y_procs,tag=5)
+
+
+				y_comm.send(u[:,-2],dest=(y_id+1)%y_procs,tag=8)
+				u[:,-1] = y_comm.recv(source=(y_id+1)%y_procs, tag=7)
+
+	return u
+
+# Initializing MPI environment
+nblockx = 2
+nblocky = 2
+
+comm = MPI.COMM_WORLD
+myid = comm.Get_rank()
+procs = comm.Get_size()
+
+x_comm = comm.Split(myid/nblockx,myid%nblockx)
+y_comm = comm.Split(myid%nblockx,myid/nblockx)
+
+x_id = x_comm.Get_rank()
+x_procs = x_comm.Get_size()
+
+y_id = y_comm.Get_rank()
+y_procs = y_comm.Get_size()
 
 # Domain Length and Limits
 
@@ -17,18 +117,22 @@ Dy_max =  0.5
 Lx = Dx_max - Dx_min
 Ly = Dy_max - Dy_min
 
+gr_Lx = Lx/nblockx
+gr_Ly = Ly/nblocky
+
 # Block size
 
-Nxb = 100
-Nyb = 100
+Nxb = 50
+Nyb = 40
 
-dx = Lx/Nxb
-dy = Ly/Nyb
+dx = gr_Lx/Nxb
+dy = gr_Ly/Nyb
 
 # physical variables
 
-x = np.linspace(Dx_min,Dx_max,Nxb+1)
-y = np.linspace(Dy_min,Dy_max,Nyb+1)
+x = Dx_min + (myid%nblockx)*gr_Lx + dx*np.linspace(0,Nxb,Nxb+1)
+
+y = Dy_min + (myid/nblockx)*gr_Ly + dy*np.linspace(0,Nyb,Nyb+1)
 
 p = np.zeros((Nxb+2,Nyb+2),dtype=float)
 
@@ -86,6 +190,11 @@ u_res = 0.
 v_res = 0.
 T_res = 0.
 
+ins_p_res = 0.
+ins_v_res = 0.
+ins_v_res = 0.
+ins_T_res = 0.
+
 # Physics Squence
 tstep = 0
 
@@ -103,23 +212,30 @@ while(tstep<=nt):
 
         #__________________Predictor Boundary Conditions_____________________#
 
+	ut = MPI_applyBC(ut,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+	vt = MPI_applyBC(vt,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+
         # LOW X
-        ut[0,:]  =  0.0
-        vt[0,:]  = -vt[1,:]
+	if(x_id == 0):
+		ut[0,:]  =  0.0
+        	vt[0,:]  = -vt[1,:]
 
         # HIGH X
-        ut[-2,:] =  0.0
-        ut[-1,:] =  0.0	
-        vt[-1,:] = -vt[-2,:]
+	if(x_id == nblockx-1):
+        	ut[-2,:] =  0.0
+        	ut[-1,:] =  0.0	
+        	vt[-1,:] = -vt[-2,:]
 
         # LOW Y
-        vt[:,0]  =  0.0
-        ut[:,0]  = -ut[:,1]
+	if(y_id == 0):
+        	vt[:,0]  =  0.0
+        	ut[:,0]  = -ut[:,1]
 
         # HIGH Y
-        vt[:,-1] =  0.0
-        vt[:,-2] =  0.0
-        ut[:,-1] = 2.0 -ut[:,-2]
+	if(y_id == nblocky-1):
+        	vt[:,-1] =  0.0
+        	vt[:,-2] =  0.0
+        	ut[:,-1] = 2.0 -ut[:,-2]
 
         #_____________________________Poisson Solver________________________#
 
@@ -133,27 +249,36 @@ while(tstep<=nt):
 
 		#___________________Pressure Boundary Conditions____________#
 
+		p_new = MPI_applyBC(p_new,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+
                 # LOW X
-		p_new[0,:]  =  p_new[1,:]
+		if(x_id == 0):	
+			p_new[0,:]  =  p_new[1,:]
                        
 		# HIGH X
-		p_new[-1,:] =  p_new[-2,:]
+		if(x_id == nblockx-1):
+			p_new[-1,:] =  p_new[-2,:]
 
 		# LOW Y
-		p_new[:,0]  =  p_new[:,1] 
+		if(y_id == 0):
+			p_new[:,0]  =  p_new[:,1] 
 
 		# HIGH Y
-		p_new[:,-1] =  p_new[:,-2]  
+		if(y_id == nblocky-1):
+			p_new[:,-1] =  p_new[:,-2]  
                  
                 #_________________Residuals and Convergence Check__________#
 
-                p_res = sqrt(np.sum((p_new-p)**2)/np.size(p))
+                p_res = np.sum((p_new-p)**2)
 
                 p = p_new
 
                 p_counter += 1
+              
+		ins_p_res = comm.allreduce(p_res, op=MPI.SUM)
+		ins_p_res = sqrt(ins_p_res/(np.size(p)*procs))
 
-                if(p_res<10**-7 and p_res != 0.):
+                if(ins_p_res<10**-6 and ins_p_res != 0.):
 			break
 
 	#________________________________Corrector____________________________#
@@ -162,29 +287,41 @@ while(tstep<=nt):
 
         #__________________Corrector Boundary Conditions_____________________#
 
+	u = MPI_applyBC(u,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+	v = MPI_applyBC(v,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+
         # LOW X
-	u[0,:]  =  0.0
-	v[0,:]  = -v[1,:]
+	if(x_id == 0):
+		u[0,:]  =  0.0
+		v[0,:]  = -v[1,:]
 
         # HIGH X
-	u[-2,:] =  0.0
-	u[-1,:] =  0.0
-	v[-1,:] = -v[-2,:]
+	if(x_id == nblockx - 1):
+		u[-2,:] =  0.0
+		u[-1,:] =  0.0
+		v[-1,:] = -v[-2,:]
 
         # LOW Y
-	v[:,0]  =  0.0
-	u[:,0]  = -u[:,1]
+	if(y_id == 0):
+		v[:,0]  =  0.0
+		u[:,0]  = -u[:,1]
 
         # HIGH Y
-	v[:,-1] =  0.0
-	v[:,-2] =  0.0
-	u[:,-1] = 2.0 -u[:,-2]
+	if(y_id == nblocky - 1):
+		v[:,-1] =  0.0
+		v[:,-2] =  0.0
+		u[:,-1] = 2.0 -u[:,-2]
 
         #___________________________Residuals_______________________________#
 
-	u_res = sqrt(np.sum((u_old-u)**2)/np.size(u))
-	v_res = sqrt(np.sum((v_old-v)**2)/np.size(v))
+	u_res = np.sum((u_old-u)**2)
+	v_res = np.sum((v_old-v)**2)
 
+	ins_u_res = comm.allreduce(u_res, op=MPI.SUM)
+	ins_u_res = sqrt(ins_u_res/(np.size(p)*procs))
+
+	ins_v_res = comm.allreduce(v_res, op=MPI.SUM)
+	ins_v_res = sqrt(ins_v_res/(np.size(p)*procs))
 
         #_______________________Heat Advection Diffusion____________________#
 
@@ -192,35 +329,46 @@ while(tstep<=nt):
 
         #____________________Temperature Boundary Conditions________________#
 
+	T_new = MPI_applyBC(T_new,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+
 	# LOW X
-	T_new[0,:]  =  T_new[1,:]
+	if(x_id == 0):
+		T_new[0,:]  =  T_new[1,:]
 
 	# HIGH X
-	T_new[-1,:] =  T_new[-2,:]
+	if(x_id == nblockx - 1):
+		T_new[-1,:] =  T_new[-2,:]
 
 	# LOW Y
-	T_new[:,0]  =  T_new[:,1]
+	if(y_id == 0):
+		T_new[:,0]  =  T_new[:,1]
 
 	# HIGH Y
-	T_new[:,-1] = 2*383.15 - T_new[:,-2]
+	if(y_id == nblocky - 1):
+		T_new[:,-1] = 2*383.15 - T_new[:,-2]
 
         #___________________________Residuals_______________________________#
 
-        T_res = sqrt(np.sum((T_new-T)**2)/np.size(T))
+        T_res = np.sum((T_new-T)**2)
+
+	ins_T_res = comm.allreduce(T_res, op=MPI.SUM)
+	ins_T_res = sqrt(ins_T_res/(np.size(T)*procs))
 	
 	T = T_new
 
-	print "---------------------------PARAMETER DISPLAY-----------------------"
-	print "Simulation Time     : ",tstep*dt," s"
-	print "U velocity Residual : ",u_res
-	print "V velocity Residual : ",v_res
-        print "Temperature Residual: ",T_res
-	print "Pressure Residual   : ",p_res
-	print "Poisson Counter     : ",p_counter
+	if(myid == 0 and tstep%5 == 0):
+
+		print "---------------------------PARAMETER DISPLAY-----------------------"
+		print "Simulation Time     : ",tstep*dt," s"
+		print "U velocity Residual : ",ins_u_res
+		print "V velocity Residual : ",ins_v_res
+        	print "Temperature Residual: ",ins_T_res
+		print "Pressure Residual   : ",ins_p_res
+		print "Poisson Counter     : ",p_counter
 
 	tstep += 1
 
-	if(u_res<10**-8 and u_res != 0. and v_res<10**-8 and v_res != 0.):
+	if(ins_u_res<10**-7 and ins_u_res != 0. and ins_v_res<10**-7 and ins_v_res != 0.):
 		break
 
 uu = 0.5*(u[:-1,:-1] + u[:-1,1:])
@@ -231,6 +379,7 @@ tt = 0.25*(T[:-1,:-1] + T[1:,:-1] + T[:-1,1:] + T[1:,1:])
 X  = X.T
 Y  = Y.T
 
+"""
 plt.figure()
 plt.contourf(X,Y,np.sqrt(uu**2+vv**2))
 plt.axis('equal')
@@ -244,3 +393,5 @@ plt.contourf(X,Y,tt)
 plt.axis('equal')
 
 plt.show()
+
+"""
