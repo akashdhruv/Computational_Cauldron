@@ -1,6 +1,7 @@
 # Importing Libraries
 import INS
 import POISSON
+import HEAT
 import numpy as np
 from math import *
 import matplotlib.pyplot as plt
@@ -52,11 +53,20 @@ p_RHS = np.zeros((Nxb,Nyb),dtype=float)
 
 p_new = np.zeros((Nxb+2,Nyb+2),dtype=float)
 
+T = np.zeros((Nxb+2,Nyb+2),dtype=float)
+T_new = np.zeros((Nxb+2,Nyb+2),dtype=float)
+
+T[:,:] = 313.0
+
 # ins parameters
 
 ins_inRe = 0.001  
 ins_sig  = 0.01
 ins_cfl  = 0.15
+
+# heat parameters
+
+ht_Pr = 0.7
 
 # driver parameters
 
@@ -70,6 +80,11 @@ t = 40.0
 nt = int(t/dt)
 
 Maxit = 1500
+
+p_res = 0.
+u_res = 0.
+v_res = 0.
+T_res = 0.
 
 # Physics Squence
 tstep = 0
@@ -116,7 +131,7 @@ while(tstep<=nt):
 
         	p_new = POISSON.solver(p,p_RHS,dx,dy,Nxb,Nyb)
 
-		#____________________Poisson Boundary Conditions____________#
+		#___________________Pressure Boundary Conditions____________#
 
                 # LOW X
 		p_new[0,:]  =  p_new[1,:]
@@ -129,6 +144,8 @@ while(tstep<=nt):
 
 		# HIGH Y
 		p_new[:,-1] =  p_new[:,-2]  
+                 
+                #_________________Residuals and Convergence Check__________#
 
                 p_res = sqrt(np.sum((p_new-p)**2)/np.size(p))
 
@@ -163,13 +180,41 @@ while(tstep<=nt):
 	v[:,-2] =  0.0
 	u[:,-1] = 2.0 -u[:,-2]
 
+        #___________________________Residuals_______________________________#
+
 	u_res = sqrt(np.sum((u_old-u)**2)/np.size(u))
 	v_res = sqrt(np.sum((v_old-v)**2)/np.size(v))
+
+
+        #_______________________Heat Advection Diffusion____________________#
+
+        T_new = HEAT.tempsolver(T,u,v,dx,dy,dt,ins_inRe,ht_Pr,Nxb,Nyb)
+
+        #____________________Temperature Boundary Conditions________________#
+
+	# LOW X
+	T_new[0,:]  =  T_new[1,:]
+
+	# HIGH X
+	T_new[-1,:] =  T_new[-2,:]
+
+	# LOW Y
+	T_new[:,0]  =  T_new[:,1]
+
+	# HIGH Y
+	T_new[:,-1] = 2*383.15 - T_new[:,-2]
+
+        #___________________________Residuals_______________________________#
+
+        T_res = sqrt(np.sum((T_new-T)**2)/np.size(T))
+	
+	T = T_new
 
 	print "---------------------------PARAMETER DISPLAY-----------------------"
 	print "Simulation Time     : ",tstep*dt," s"
 	print "U velocity Residual : ",u_res
 	print "V velocity Residual : ",v_res
+        print "Temperature Residual: ",T_res
 	print "Pressure Residual   : ",p_res
 	print "Poisson Counter     : ",p_counter
 
@@ -181,6 +226,7 @@ while(tstep<=nt):
 uu = 0.5*(u[:-1,:-1] + u[:-1,1:])
 vv = 0.5*(v[:-1,:-1] + v[1:,:-1])
 pp = 0.25*(p[:-1,:-1] + p[1:,:-1] + p[:-1,1:] + p[1:,1:])
+tt = 0.25*(T[:-1,:-1] + T[1:,:-1] + T[:-1,1:] + T[1:,1:])
 
 X  = X.T
 Y  = Y.T
@@ -191,6 +237,10 @@ plt.axis('equal')
 
 plt.figure()
 plt.contourf(X,Y,pp)
+plt.axis('equal')
+
+plt.figure()
+plt.contourf(X,Y,tt)
 plt.axis('equal')
 
 plt.show()
