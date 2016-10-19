@@ -5,7 +5,8 @@ import HEAT
 import numpy as np
 from math import *
 from mpi4py import MPI
-import matplotlib.pyplot as plt
+import time
+#import matplotlib.pyplot as plt
 
 
 # Defining MPI communication function
@@ -89,6 +90,8 @@ def MPI_applyBC(u,x_id,y_id,x_procs,y_procs,x_comm,y_comm):
 
 	return u
 
+##_______________________________________MAIN_______________________________________________#
+
 # Initializing MPI environment
 nblockx = 2
 nblocky = 2
@@ -105,6 +108,8 @@ x_procs = x_comm.Get_size()
 
 y_id = y_comm.Get_rank()
 y_procs = y_comm.Get_size()
+
+t1 = time.time()
 
 # Domain Length and Limits
 
@@ -176,8 +181,10 @@ ht_Pr = 0.7
 
 dt_sig = ins_sig*(min(dx,dy)**2)/ins_inRe
 dt_cfl = ins_cfl*min(dx,dy)
+dt_temp = dt_sig*ht_Pr
 
-dt = min(dt_sig,dt_cfl)
+
+dt = min(dt_sig,dt_cfl,dt_temp)
 
 t = 40.0
 
@@ -376,8 +383,26 @@ vv = 0.5*(v[:-1,:-1] + v[1:,:-1])
 pp = 0.25*(p[:-1,:-1] + p[1:,:-1] + p[:-1,1:] + p[1:,1:])
 tt = 0.25*(T[:-1,:-1] + T[1:,:-1] + T[:-1,1:] + T[1:,1:])
 
-X  = X.T
-Y  = Y.T
+
+uu = uu.T
+vv = vv.T
+pp = pp.T
+tt = tt.T
+
+X = np.reshape(X,np.size(X))
+Y = np.reshape(Y,np.size(Y))
+uu = np.reshape(uu,np.size(uu))
+vv = np.reshape(vv,np.size(vv))
+pp = np.reshape(pp,np.size(pp))
+tt = np.reshape(tt,np.size(tt))
+
+DataOut = np.column_stack((X.T,Y.T,uu.T,vv.T,pp.T,tt.T))
+np.savetxt('LidData0%d.dat' % myid,DataOut)
+
+t2 = time.time()
+
+
+print t2-t1
 
 """
 plt.figure()

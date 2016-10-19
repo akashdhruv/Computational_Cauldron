@@ -12,8 +12,11 @@ INS.so: INS.F90
 HEAT.so: HEAT.F90
 	$(FF) $(FFLAGS) HEAT HEAT.F90
 
+cleanall:
+	rm -f *.so *.dat
+
 clean:
-	rm -f *.so
+	rm -f *.dat
 
 run: Solver.py
 	python Solver.py
