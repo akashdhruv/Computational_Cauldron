@@ -93,8 +93,8 @@ def MPI_applyBC(u,x_id,y_id,x_procs,y_procs,x_comm,y_comm):
 ##_______________________________________MAIN_______________________________________________#
 
 # Initializing MPI environment
-nblockx = 2
-nblocky = 2
+nblockx = 1
+nblocky = 1
 
 comm = MPI.COMM_WORLD
 myid = comm.Get_rank()
@@ -127,8 +127,8 @@ gr_Ly = Ly/nblocky
 
 # Block size
 
-Nxb = 50
-Nyb = 40
+Nxb = 120
+Nyb = 120
 
 dx = gr_Lx/Nxb
 dy = gr_Ly/Nyb
@@ -184,23 +184,28 @@ dt_cfl = ins_cfl*min(dx,dy)
 dt_temp = dt_sig*ht_Pr
 
 
-dt = min(dt_sig,dt_cfl,dt_temp)
+dt = min(dt_sig,dt_cfl)
+dt = min(dt,dt_temp)
 
-t = 40.0
+t = 60.0
 
 nt = int(t/dt)
 
 Maxit = 1500
 
-p_res = 0.
-u_res = 0.
-v_res = 0.
-T_res = 0.
+p_res  = 0.
+u_res  = 0.
+v_res  = 0.
+T_res  = 0.
+maxdiv = 0.
+mindiv = 0.
 
-ins_p_res = 0.
-ins_v_res = 0.
-ins_v_res = 0.
-ins_T_res = 0.
+ins_p_res  = 0.
+ins_v_res  = 0.
+ins_v_res  = 0.
+ins_T_res  = 0.
+ins_maxdiv = 0.
+ins_mindiv = 0.
 
 # Physics Squence
 tstep = 0
@@ -330,6 +335,17 @@ while(tstep<=nt):
 	ins_v_res = comm.allreduce(v_res, op=MPI.SUM)
 	ins_v_res = sqrt(ins_v_res/(np.size(p)*procs))
 
+        #____________________________Divergence_____________________________#
+
+	maxdiv = -10.0**(10)
+	mindiv =  10.0**(10)
+
+	maxdiv = max(maxdiv,np.max(((1/(dy))*(v[1:-1,1:-1]-v[1:-1,:-2])) + ((1/(dx))*(u[1:-1,1:-1]-u[:-2,1:-1]))))
+	mindiv = min(mindiv,np.min(((1/(dy))*(v[1:-1,1:-1]-v[1:-1,:-2])) + ((1/(dx))*(u[1:-1,1:-1]-u[:-2,1:-1]))))
+
+	ins_maxdiv = comm.allreduce(maxdiv, op=MPI.MAX)
+	ins_mindiv = comm.allreduce(mindiv, op=MPI.MIN)
+
         #_______________________Heat Advection Diffusion____________________#
 
         T_new = HEAT.tempsolver(T,u,v,dx,dy,dt,ins_inRe,ht_Pr,Nxb,Nyb)
@@ -372,6 +388,7 @@ while(tstep<=nt):
         	print "Temperature Residual: ",ins_T_res
 		print "Pressure Residual   : ",ins_p_res
 		print "Poisson Counter     : ",p_counter
+		print "MAXDIV : ",ins_maxdiv," MINDIV: ",ins_mindiv
 
 	tstep += 1
 
