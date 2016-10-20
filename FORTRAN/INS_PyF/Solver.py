@@ -9,7 +9,7 @@ import time
 #import matplotlib.pyplot as plt
 
 
-# Defining MPI communication function
+#__________________Defining MPI communication function______________________#
 
 def MPI_applyBC(u,x_id,y_id,x_procs,y_procs,x_comm,y_comm):
 
@@ -92,9 +92,10 @@ def MPI_applyBC(u,x_id,y_id,x_procs,y_procs,x_comm,y_comm):
 
 ##_______________________________________MAIN_______________________________________________#
 
-# Initializing MPI environment
-nblockx = 1
-nblocky = 1
+#_____________________________Initializing MPI environment__________________________________#
+
+nblockx = 4
+nblocky = 4
 
 comm = MPI.COMM_WORLD
 myid = comm.Get_rank()
@@ -111,7 +112,7 @@ y_procs = y_comm.Get_size()
 
 t1 = time.time()
 
-# Domain Length and Limits
+#______________________________Domain Length and Limits_____________________________________#
 
 Dx_min = -0.5
 Dx_max =  0.5
@@ -125,59 +126,64 @@ Ly = Dy_max - Dy_min
 gr_Lx = Lx/nblockx
 gr_Ly = Ly/nblocky
 
-# Block size
+#______________________________________Block size__________________________________________#
 
-Nxb = 120
-Nyb = 120
+Nxb = 30
+Nyb = 30
 
 dx = gr_Lx/Nxb
 dy = gr_Ly/Nyb
 
-# physical variables
+#_______________________________________Constants__________________________________________#
+
+PRES_VAR = 0
+TEMP_VAR = 1
+PNEW_VAR = 2
+TNEW_VAR = 3
+
+CENT_VAR = 4
+
+VELC_VAR = 0
+VSTR_VAR = 1
+VOLD_VAR = 2
+
+FACE_VAR = 3
+
+GONE_VAR = 0
+GTWO_VAR = 1
+G1NW_VAR = 2
+G2NW_VAR = 3
+PRHS_VAR = 4
+
+WORK_VAR = 5
+
+#___________________________________physical variables___________________________________#
+
 
 x = Dx_min + (myid%nblockx)*gr_Lx + dx*np.linspace(0,Nxb,Nxb+1)
 
 y = Dy_min + (myid/nblockx)*gr_Ly + dy*np.linspace(0,Nyb,Nyb+1)
 
-p = np.zeros((Nxb+2,Nyb+2),dtype=float)
-
-u = np.zeros((Nxb+2,Nyb+2),dtype=float)
-v = np.zeros((Nxb+2,Nyb+2),dtype=float)
-
-ut = np.zeros((Nxb+2,Nyb+2),dtype=float)
-vt = np.zeros((Nxb+2,Nyb+2),dtype=float)
-
 [X,Y] = np.meshgrid(x,y)
 
-u_old = np.zeros((Nxb+2,Nyb+2),dtype=float)
-v_old = np.zeros((Nxb+2,Nyb+2),dtype=float)
+center = np.zeros((CENT_VAR,Nxb+2,Nyb+2),dtype=float)
+facex  = np.zeros((FACE_VAR,Nxb+2,Nyb+2),dtype=float)
+facey  = np.zeros((FACE_VAR,Nxb+2,Nyb+2),dtype=float)
+work   = np.zeros((WORK_VAR,Nxb,Nyb),dtype=float)
 
-G1 = np.zeros((Nxb,Nyb),dtype=float)
-G2 = np.zeros((Nxb,Nyb),dtype=float)
+center[TEMP_VAR,:,:] = 313.0
 
-G1_new = np.zeros((Nxb,Nyb),dtype=float)
-G2_new = np.zeros((Nxb,Nyb),dtype=float)
-
-p_RHS = np.zeros((Nxb,Nyb),dtype=float)
-
-p_new = np.zeros((Nxb+2,Nyb+2),dtype=float)
-
-T = np.zeros((Nxb+2,Nyb+2),dtype=float)
-T_new = np.zeros((Nxb+2,Nyb+2),dtype=float)
-
-T[:,:] = 313.0
-
-# ins parameters
+#___________________________________ins parameters______________________________________#
 
 ins_inRe = 0.001  
 ins_sig  = 0.01
 ins_cfl  = 0.15
 
-# heat parameters
+#__________________________________heat parameters______________________________________#
 
 ht_Pr = 0.7
 
-# driver parameters
+#_________________________________driver parameters_____________________________________#
 
 dt_sig = ins_sig*(min(dx,dy)**2)/ins_inRe
 dt_cfl = ins_cfl*min(dx,dy)
@@ -207,177 +213,182 @@ ins_T_res  = 0.
 ins_maxdiv = 0.
 ins_mindiv = 0.
 
-# Physics Squence
+#________________________________Physics Squence_____________________________________#
+
 tstep = 0
 
 while(tstep<=nt):
 
-	u_old = u.copy()
-        v_old = v.copy()
+	facex[VOLD_VAR,:,:] = facex[VELC_VAR,:,:]
+	facey[VOLD_VAR,:,:] = facey[VELC_VAR,:,:]
 	
 	#_____________________________Predictor_____________________________#
 
-	G1_new,G2_new,ut,vt = INS.predictor(u,v,G1,G2,ins_inRe,dx,dy,dt,tstep,Nxb,Nyb)
+	#G1_new,G2_new,ut,vt = INS.predictor(u,v,G1,G2,ins_inRe,dx,dy,dt,tstep,Nxb,Nyb)
+	work[G1NW_VAR,:,:],work[G2NW_VAR,:,:],facex[VSTR_VAR,:,:],facey[VSTR_VAR,:,:] = INS.predictor(facex[VELC_VAR,:,:],facey[VELC_VAR,:,:],work[GONE_VAR,:,:],work[GTWO_VAR,:,:],ins_inRe,dx,dy,dt,tstep,Nxb,Nyb)
 
-        G1 = G1_new
-        G2 = G2_new
+        work[GONE_VAR,:,:] = work[G1NW_VAR,:,:]
+        work[GTWO_VAR,:,:] = work[G2NW_VAR,:,:]
 
         #__________________Predictor Boundary Conditions_____________________#
 
-	ut = MPI_applyBC(ut,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
-	vt = MPI_applyBC(vt,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+	facex[VSTR_VAR,:,:] = MPI_applyBC(facex[VSTR_VAR,:,:],x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+	facey[VSTR_VAR,:,:] = MPI_applyBC(facey[VSTR_VAR,:,:],x_id,y_id,x_procs,y_procs,x_comm,y_comm)
 
         # LOW X
 	if(x_id == 0):
-		ut[0,:]  =  0.0
-        	vt[0,:]  = -vt[1,:]
+		facex[VSTR_VAR,0,:]  =  0.0
+        	facey[VSTR_VAR,0,:]  = -facey[VSTR_VAR,1,:]
 
         # HIGH X
 	if(x_id == nblockx-1):
-        	ut[-2,:] =  0.0
-        	ut[-1,:] =  0.0	
-        	vt[-1,:] = -vt[-2,:]
+        	facex[VSTR_VAR,-2,:] =  0.0
+        	facex[VSTR_VAR,-1,:] =  0.0	
+        	facey[VSTR_VAR,-1,:] = -facey[VSTR_VAR,-2,:]
 
         # LOW Y
 	if(y_id == 0):
-        	vt[:,0]  =  0.0
-        	ut[:,0]  = -ut[:,1]
+        	facey[VSTR_VAR,:,0]  =  0.0
+        	facex[VSTR_VAR,:,0]  = -facex[VSTR_VAR,:,1]
 
         # HIGH Y
 	if(y_id == nblocky-1):
-        	vt[:,-1] =  0.0
-        	vt[:,-2] =  0.0
-        	ut[:,-1] = 2.0 -ut[:,-2]
+        	facey[VSTR_VAR,:,-1] =  0.0
+        	facey[VSTR_VAR,:,-2] =  0.0
+        	facex[VSTR_VAR,:,-1] = 2.0 -facex[VSTR_VAR,:,-2]
 
         #_____________________________Poisson Solver________________________#
 
-        p_RHS = -((1/(dy*dt))*(vt[1:-1,1:-1]-vt[1:-1,:-2]))-((1/(dx*dt))*(ut[1:-1,1:-1]-ut[:-2,1:-1]))
+        work[PRHS_VAR,:,:] = -((1/(dy*dt))*(facey[VSTR_VAR,1:-1,1:-1]-facey[VSTR_VAR,1:-1,:-2]))-((1/(dx*dt))*(facex[VSTR_VAR,1:-1,1:-1]-facex[VSTR_VAR,:-2,1:-1]))
 
         p_counter = 0
 
         while(p_counter < Maxit):
 
-        	p_new = POISSON.solver(p,p_RHS,dx,dy,Nxb,Nyb)
+        	#p_new = POISSON.solver(p,p_RHS,dx,dy,Nxb,Nyb)
+		center[PNEW_VAR,:,:] = POISSON.solver(center[PRES_VAR,:,:],work[PRHS_VAR,:,:],dx,dy,Nxb,Nyb)
 
 		#___________________Pressure Boundary Conditions____________#
 
-		p_new = MPI_applyBC(p_new,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+		center[PNEW_VAR,:,:] = MPI_applyBC(center[PNEW_VAR,:,:],x_id,y_id,x_procs,y_procs,x_comm,y_comm)
 
                 # LOW X
 		if(x_id == 0):	
-			p_new[0,:]  =  p_new[1,:]
+			center[PNEW_VAR,0,:]  =  center[PNEW_VAR,1,:]
                        
 		# HIGH X
 		if(x_id == nblockx-1):
-			p_new[-1,:] =  p_new[-2,:]
+			center[PNEW_VAR,-1,:] =  center[PNEW_VAR,-2,:]
 
 		# LOW Y
 		if(y_id == 0):
-			p_new[:,0]  =  p_new[:,1] 
+			center[PNEW_VAR,:,0]  =  center[PNEW_VAR,:,1] 
 
 		# HIGH Y
 		if(y_id == nblocky-1):
-			p_new[:,-1] =  p_new[:,-2]  
+			center[PNEW_VAR,:,-1] =  center[PNEW_VAR,:,-2]  
                  
                 #_________________Residuals and Convergence Check__________#
 
-                p_res = np.sum((p_new-p)**2)
+                p_res = np.sum((center[PNEW_VAR,:,:]-center[PRES_VAR,:,:])**2)
 
-                p = p_new
+                center[PRES_VAR,:,:] = center[PNEW_VAR,:,:]
 
                 p_counter += 1
               
 		ins_p_res = comm.allreduce(p_res, op=MPI.SUM)
-		ins_p_res = sqrt(ins_p_res/(np.size(p)*procs))
+		ins_p_res = sqrt(ins_p_res/((Nxb+2)*(Nyb+2)*procs))
 
                 if(ins_p_res<10**-6 and ins_p_res != 0.):
 			break
 
 	#________________________________Corrector____________________________#
 
-	u,v = INS.corrector(ut,vt,p,dt,dx,dy,Nxb,Nyb)
+	facex[VELC_VAR,:,:],facey[VELC_VAR,:,:] = INS.corrector(facex[VSTR_VAR,:,:],facey[VSTR_VAR,:,:],center[PRES_VAR,:,:],dt,dx,dy,Nxb,Nyb)
 
         #__________________Corrector Boundary Conditions_____________________#
 
-	u = MPI_applyBC(u,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
-	v = MPI_applyBC(v,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+	facex[VELC_VAR,:,:] = MPI_applyBC(facex[VELC_VAR,:,:],x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+	facey[VELC_VAR,:,:] = MPI_applyBC(facey[VELC_VAR,:,:],x_id,y_id,x_procs,y_procs,x_comm,y_comm)
 
         # LOW X
 	if(x_id == 0):
-		u[0,:]  =  0.0
-		v[0,:]  = -v[1,:]
+		facex[VELC_VAR,0,:]  =  0.0
+		facey[VELC_VAR,0,:]  = -facey[VELC_VAR,1,:]
 
         # HIGH X
 	if(x_id == nblockx - 1):
-		u[-2,:] =  0.0
-		u[-1,:] =  0.0
-		v[-1,:] = -v[-2,:]
+		facex[VELC_VAR,-2,:] =  0.0
+		facex[VELC_VAR,-1,:] =  0.0
+		facey[VELC_VAR,-1,:] = -facey[VELC_VAR,-2,:]
 
         # LOW Y
 	if(y_id == 0):
-		v[:,0]  =  0.0
-		u[:,0]  = -u[:,1]
+		facey[VELC_VAR,:,0]  =  0.0
+		facex[VELC_VAR,:,0]  = -facex[VELC_VAR,:,1]
 
         # HIGH Y
 	if(y_id == nblocky - 1):
-		v[:,-1] =  0.0
-		v[:,-2] =  0.0
-		u[:,-1] = 2.0 -u[:,-2]
+		facey[VELC_VAR,:,-1] =  0.0
+		facey[VELC_VAR,:,-2] =  0.0
+		facex[VELC_VAR,:,-1] = 2.0 - facex[VELC_VAR,:,-2]
 
         #___________________________Residuals_______________________________#
 
-	u_res = np.sum((u_old-u)**2)
-	v_res = np.sum((v_old-v)**2)
+	u_res = np.sum((facex[VOLD_VAR,:,:]-facex[VELC_VAR,:,:])**2)
+	v_res = np.sum((facey[VOLD_VAR,:,:]-facey[VELC_VAR,:,:])**2)
 
 	ins_u_res = comm.allreduce(u_res, op=MPI.SUM)
-	ins_u_res = sqrt(ins_u_res/(np.size(p)*procs))
+	ins_u_res = sqrt(ins_u_res/((Nxb+2)*(Nyb+2)*procs))
 
 	ins_v_res = comm.allreduce(v_res, op=MPI.SUM)
-	ins_v_res = sqrt(ins_v_res/(np.size(p)*procs))
+	ins_v_res = sqrt(ins_v_res/((Nxb+2)*(Nyb+2)*procs))
 
         #____________________________Divergence_____________________________#
 
 	maxdiv = -10.0**(10)
 	mindiv =  10.0**(10)
 
-	maxdiv = max(maxdiv,np.max(((1/(dy))*(v[1:-1,1:-1]-v[1:-1,:-2])) + ((1/(dx))*(u[1:-1,1:-1]-u[:-2,1:-1]))))
-	mindiv = min(mindiv,np.min(((1/(dy))*(v[1:-1,1:-1]-v[1:-1,:-2])) + ((1/(dx))*(u[1:-1,1:-1]-u[:-2,1:-1]))))
+	maxdiv = max(maxdiv,np.max(((1/(dy))*(facey[VELC_VAR,1:-1,1:-1]-facey[VELC_VAR,1:-1,:-2])) + ((1/(dx))*(facex[VELC_VAR,1:-1,1:-1]-facex[VELC_VAR,:-2,1:-1]))))
+	mindiv = min(mindiv,np.min(((1/(dy))*(facey[VELC_VAR,1:-1,1:-1]-facey[VELC_VAR,1:-1,:-2])) + ((1/(dx))*(facex[VELC_VAR,1:-1,1:-1]-facex[VELC_VAR,:-2,1:-1]))))
 
 	ins_maxdiv = comm.allreduce(maxdiv, op=MPI.MAX)
 	ins_mindiv = comm.allreduce(mindiv, op=MPI.MIN)
 
         #_______________________Heat Advection Diffusion____________________#
 
-        T_new = HEAT.tempsolver(T,u,v,dx,dy,dt,ins_inRe,ht_Pr,Nxb,Nyb)
+        center[TNEW_VAR,:,:] = HEAT.tempsolver(center[TEMP_VAR,:,:],facex[VELC_VAR,:,:],facey[VELC_VAR,:,:],dx,dy,dt,ins_inRe,ht_Pr,Nxb,Nyb)
 
         #____________________Temperature Boundary Conditions________________#
 
-	T_new = MPI_applyBC(T_new,x_id,y_id,x_procs,y_procs,x_comm,y_comm)
+	center[TNEW_VAR,:,:] = MPI_applyBC(center[TNEW_VAR,:,:],x_id,y_id,x_procs,y_procs,x_comm,y_comm)
 
 	# LOW X
 	if(x_id == 0):
-		T_new[0,:]  =  T_new[1,:]
+		center[TNEW_VAR,0,:]  =  center[TNEW_VAR,1,:]
 
 	# HIGH X
 	if(x_id == nblockx - 1):
-		T_new[-1,:] =  T_new[-2,:]
+		center[TNEW_VAR,-1,:] =  center[TNEW_VAR,-2,:]
 
 	# LOW Y
 	if(y_id == 0):
-		T_new[:,0]  =  T_new[:,1]
+		center[TNEW_VAR,:,0]  =  center[TNEW_VAR,:,1]
 
 	# HIGH Y
 	if(y_id == nblocky - 1):
-		T_new[:,-1] = 2*383.15 - T_new[:,-2]
+		center[TNEW_VAR,:,-1] = 2*383.15 - center[TNEW_VAR,:,-2]
 
         #___________________________Residuals_______________________________#
 
-        T_res = np.sum((T_new-T)**2)
+        T_res = np.sum((center[TNEW_VAR,:,:]-center[TEMP_VAR,:,:])**2)
 
 	ins_T_res = comm.allreduce(T_res, op=MPI.SUM)
-	ins_T_res = sqrt(ins_T_res/(np.size(T)*procs))
+	ins_T_res = sqrt(ins_T_res/((Nxb+2)*(Nyb+2)*procs))
 	
-	T = T_new
+	center[TEMP_VAR,:,:] = center[TNEW_VAR,:,:]
+
+        #____________________________Display_________________________________#
 
 	if(myid == 0 and tstep%5 == 0):
 
@@ -390,15 +401,21 @@ while(tstep<=nt):
 		print "Poisson Counter     : ",p_counter
 		print "MAXDIV : ",ins_maxdiv," MINDIV: ",ins_mindiv
 
+        #__________________________Convergence Check_________________________#
+
 	tstep += 1
 
 	if(ins_u_res<10**-7 and ins_u_res != 0. and ins_v_res<10**-7 and ins_v_res != 0.):
 		break
 
-uu = 0.5*(u[:-1,:-1] + u[:-1,1:])
-vv = 0.5*(v[:-1,:-1] + v[1:,:-1])
-pp = 0.25*(p[:-1,:-1] + p[1:,:-1] + p[:-1,1:] + p[1:,1:])
-tt = 0.25*(T[:-1,:-1] + T[1:,:-1] + T[:-1,1:] + T[1:,1:])
+
+
+#_________________________Post Processing and Writing Data to File_____________#
+
+uu = 0.5*(facex[VELC_VAR,:-1,:-1] + facex[VELC_VAR,:-1,1:])
+vv = 0.5*(facey[VELC_VAR,:-1,:-1] + facey[VELC_VAR,1:,:-1])
+pp = 0.25*(center[PRES_VAR,:-1,:-1] + center[PRES_VAR,1:,:-1] + center[PRES_VAR,:-1,1:] + center[PRES_VAR,1:,1:])
+tt = 0.25*(center[TEMP_VAR,:-1,:-1] + center[TEMP_VAR,1:,:-1] + center[TEMP_VAR,:-1,1:] + center[TEMP_VAR,1:,1:])
 
 
 uu = uu.T
@@ -417,23 +434,5 @@ DataOut = np.column_stack((X.T,Y.T,uu.T,vv.T,pp.T,tt.T))
 np.savetxt('LidData0%d.dat' % myid,DataOut)
 
 t2 = time.time()
-
-
 print t2-t1
 
-"""
-plt.figure()
-plt.contourf(X,Y,np.sqrt(uu**2+vv**2))
-plt.axis('equal')
-
-plt.figure()
-plt.contourf(X,Y,pp)
-plt.axis('equal')
-
-plt.figure()
-plt.contourf(X,Y,tt)
-plt.axis('equal')
-
-plt.show()
-
-"""

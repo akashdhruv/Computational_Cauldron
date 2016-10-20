@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-M=40+1
-N=40+1
+M=24+1
+N=60+1
 
-k = 3
-d = 3
+k = 5
+d = 2
 
 X=np.zeros((N*d,M*k),dtype=float)
 Y=np.zeros((N*d,M*k),dtype=float)
@@ -54,5 +54,15 @@ plt.figure()
 plt.title('Temperature')
 plt.contourf(X,Y,T,density=5)
 plt.axis('equal')
+
+"""
+plt.figure()
+plt.contourf(X,Y,U,density=5)
+plt.axis('equal')
+
+plt.figure()
+plt.contourf(X,Y,V,density=5)
+plt.axis('equal')
+"""
 
 plt.show()
