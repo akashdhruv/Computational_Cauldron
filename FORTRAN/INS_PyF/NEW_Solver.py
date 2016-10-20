@@ -94,7 +94,7 @@ def MPI_applyBC(u,x_id,y_id,x_procs,y_procs,x_comm,y_comm):
 
 #_____________________________Initializing MPI environment__________________________________#
 
-nblockx = 1
+nblockx = 2
 nblocky = 1
 
 comm = MPI.COMM_WORLD
@@ -109,6 +109,10 @@ x_procs = x_comm.Get_size()
 
 y_id = y_comm.Get_rank()
 y_procs = y_comm.Get_size()
+
+x_fcomm = x_comm.py2f()
+y_fcomm = y_comm.py2f()
+fcomm   = comm.py2f()
 
 t1 = MPI.Wtime()
 
@@ -128,8 +132,8 @@ gr_Ly = Ly/nblocky
 
 #______________________________________Block size__________________________________________#
 
-Nxb = 480
-Nyb = 480
+Nxb = 60
+Nyb = 120
 
 dx = gr_Lx/Nxb
 dy = gr_Ly/Nyb
@@ -261,46 +265,10 @@ while(tstep<=nt):
 
         work[PRHS_VAR,:,:] = -((1/(dy*dt))*(facey[VSTR_VAR,1:-1,1:-1]-facey[VSTR_VAR,1:-1,:-2]))-((1/(dx*dt))*(facex[VSTR_VAR,1:-1,1:-1]-facex[VSTR_VAR,:-2,1:-1]))
 
-        p_counter = 0
 
-        while(p_counter < Maxit):
-
-        	#p_new = POISSON.solver(p,p_RHS,dx,dy,Nxb,Nyb)
-		center[PNEW_VAR,:,:] = POISSON.solver(center[PRES_VAR,:,:],work[PRHS_VAR,:,:],dx,dy,Nxb,Nyb)
-
-		#___________________Pressure Boundary Conditions____________#
-
-		center[PNEW_VAR,:,:] = MPI_applyBC(center[PNEW_VAR,:,:],x_id,y_id,x_procs,y_procs,x_comm,y_comm)
-
-                # LOW X
-		if(x_id == 0):	
-			center[PNEW_VAR,0,:]  =  center[PNEW_VAR,1,:]
-                       
-		# HIGH X
-		if(x_id == nblockx-1):
-			center[PNEW_VAR,-1,:] =  center[PNEW_VAR,-2,:]
-
-		# LOW Y
-		if(y_id == 0):
-			center[PNEW_VAR,:,0]  =  center[PNEW_VAR,:,1] 
-
-		# HIGH Y
-		if(y_id == nblocky-1):
-			center[PNEW_VAR,:,-1] =  center[PNEW_VAR,:,-2]  
-                 
-                #_________________Residuals and Convergence Check__________#
-
-                p_res = np.sum((center[PNEW_VAR,:,:]-center[PRES_VAR,:,:])**2)
-
-                center[PRES_VAR,:,:] = center[PNEW_VAR,:,:]
-
-                p_counter += 1
-              
-		ins_p_res = comm.allreduce(p_res, op=MPI.SUM)
-		ins_p_res = sqrt(ins_p_res/((Nxb+2)*(Nyb+2)*procs))
-
-                if(ins_p_res<10**-6 and ins_p_res != 0.):
-			break
+	center[PNEW_VAR,:,:],p_counter,ins_p_res = POISSON.solver(center[PRES_VAR,:,:],work[PRHS_VAR,:,:],Maxit,\
+                                                                  x_fcomm,y_fcomm,fcomm,x_id,y_id,myid,x_procs,y_procs,\
+                                                                  nblockx,nblocky,dx,dy,Nxb,Nyb)
 
 	#________________________________Corrector____________________________#
 

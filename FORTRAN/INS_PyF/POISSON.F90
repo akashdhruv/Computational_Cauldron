@@ -1,8 +1,6 @@
 subroutine solver(ps,ps_rhs,ps_new,dx,dy,Nxb,Nyb)
 
-
    implicit none
-   
    integer, intent(in) :: Nxb,Nyb
    real, intent(in) :: dx,dy
    real, intent(in), dimension(Nxb,Nyb) :: ps_rhs
@@ -12,7 +10,6 @@ subroutine solver(ps,ps_rhs,ps_new,dx,dy,Nxb,Nyb)
    integer :: i,j
 
    ps_new = ps
-     
 
    do j=2,Nyb+1
       do i=2,Nxb+1
