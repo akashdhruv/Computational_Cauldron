@@ -94,8 +94,8 @@ def MPI_applyBC(u,x_id,y_id,x_procs,y_procs,x_comm,y_comm):
 
 #_____________________________Initializing MPI environment__________________________________#
 
-nblockx = 1
-nblocky = 1
+nblockx = 2
+nblocky = 2
 
 comm = MPI.COMM_WORLD
 myid = comm.Get_rank()
@@ -128,8 +128,8 @@ gr_Ly = Ly/nblocky
 
 #______________________________________Block size__________________________________________#
 
-Nxb = 480
-Nyb = 480
+Nxb = 20
+Nyb = 20
 
 dx = gr_Lx/Nxb
 dy = gr_Ly/Nyb
