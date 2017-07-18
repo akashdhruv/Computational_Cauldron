@@ -1,4 +1,4 @@
-##MATLAB based solvers
+## MATLAB based solvers
 
 These old codes and are not properly streamlined to achieve maximum computational efficiency. I will upload a revision as soon possible. Anyone who has written a better version, please open a pull request and I will merge it.
 

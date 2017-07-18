@@ -7,3 +7,4 @@ I am currently working on developing ipython notebooks on MPI-based solvers for 
 (Please refer to the license file for further information on how to reference this source)
 
 Author - Akash Dhruv
+Citation - https://github.com/akidhruv/Computational_Cauldron
